@@ -1,0 +1,1706 @@
+<meta charset="utf-8">
+		<title>JavaServer Faces</title>
+		
+		<script type="text/javascript">
+            var uagent = navigator.userAgent.toLowerCase();           
+            if (uagent.search("android") > -1) {
+              document.write('<link rel="stylesheet" href="../css/refcardz_html_android.css" type="text/css" media="screen">');
+            }
+        </script>
+	
+	    <base href="http://refcardz.dzone.com/" />
+		
+		<h1><span id="main_topic">JavaServer </span> Faces</h1>
+		<p class="author_name">By Cay S. Horstmann</p>
+		
+		<h2>About This Refcard</h2>
+		
+<p>JavaServer Faces (JSF) is the "official" component-based
+view technology in the Java EE web tier. JSF includes a set
+of predefined UI components, an event-driven programming
+model, and the ability to add third-party components. JSF
+is designed to be extensible, easy to use, and toolable. This
+refcard describes the JSF development process, standard JSF
+tags, the JSF expression language, and the faces-config.xml
+configuration file.</p>
+			
+	<h2>Development Proces</h2>		
+			
+			<p>A developer specifies JSF components in JSF pages,
+combining JSF component tags with HTML and CSS for styling.
+Components are linked with managed beans,Java classes
+that contain presentation logic and connect to business logic
+and persistence backends. Entries in <code>faces-config.xml</code> contain
+navigation rules and instructions for loading managed beans.</p>
+			
+			<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img01_devproc.jpg" width="487" height="241" alt="Development Process">
+			
+			<p>A JSF page has the following structure:</p>
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">JSP Style</th>
+  					<th class="right_th_colored">Proper XML</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored"><pre><code>&lt;html&gt;
+&lt;%@ taglib
+uri="http://
+java.sun.com/jsf/
+core"
+prefix="f" %&gt;
+&lt;%@ taglib
+uri="http://
+java.sun.com/jsf/
+html"
+prefix="h" %&gt;
+&lt;f:view&gt;
+&lt;head&gt;
+&lt;title&gt;...&lt;/
+title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h:form&gt;
+...
+&lt;/h:form&gt;
+&lt;/body&gt;
+&lt;/f:view&gt;
+&lt;/html&gt;</code></pre></td>
+  					<td class="right_td_colored"><pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;jsp:root xmlns:jsp="http://java.sun.com/
+JSP/Page"
+xmlns:f="http://java.sun.com/jsf/core"
+xmlns:h="http://java.sun.com/jsf/html"
+version="2.0"&gt;
+&lt;jsp:directive.page contentType="text/
+html;charset=UTF-8"/&gt;
+&lt;jsp:output omit-xml-declaration="no"
+doctype-root-element="html"
+doctype-public="-//W3C//DTD XHTML 1.0
+Transitional//EN"
+doctype-system="http://www.w3.org/TR/
+xhtml1/
+DTD/xhtml1-transitional.dtd"/&gt;
+&lt;f:view&gt;
+&lt;html xmlns="http://www.w3.org/1999/
+xhtml"&gt;
+&lt;head&gt;
+&lt;title&gt;...&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h:form&gt;...&lt;/h:form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&lt;/f:view&gt;
+&lt;/jsp:root&gt;</code></pre></td>
+  				</tr>
+        </tbody>
+				</table>
+
+			<p>These common tasks give you a crash course into using JSF.</p>
+			<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img02_txtfield.jpg" width="160" height="26" alt="Text Field">
+			
+			<h4>page.jspx</h4>
+<pre><code>&lt;h:inputText value="#{bean1.luckyNumber}"&gt;</code></pre>
+<h4>faces-config.xml</h4>
+<pre><code>&lt;managed-bean&gt;
+&lt;managed-bean-name&gt;bean1&lt;/managed-bean-name&gt;
+&lt;managed-bean-class&gt;com.corejsf.SampleBean&lt;/
+managed-bean-class&gt;
+&lt;managed-bean-scope&gt;session&lt;/managed-bean-scope&gt;
+&lt;/managed-bean&gt;</code></pre>
+<h4>com/corejsf/SampleBean.java</h4>
+<pre><code>public class SampleBean {
+public int getLuckyNumber() { ... }
+public void setLuckyNumber(int value) { ... }
+...
+}</code></pre>
+			
+			<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img03_pressme.jpg" width="89" height="32" alt="Button">
+			
+			<h4>page.jspx</h4>
+<pre><code>&lt;h:commandButton value="press me" action="#{bean1.
+login}"/&gt;</code></pre>
+<h4>faces-config.xml</h4>
+<pre><code>&lt;navigation-rule&gt;
+&lt;navigation-case&gt;
+&lt;from-outcome&gt;success&lt;/from-outcome&gt;
+&lt;to-view-id&gt;/success.jspx&lt;/to-view-id&gt;
+&lt;/navigation-case&gt;
+&lt;navigation-case&gt;
+&lt;from-outcome&gt;error&lt;/from-outcome&gt;
+&lt;to-view-id&gt;/error.jspx&lt;/to-view-id&gt;
+&lt;redirect/&gt;
+&lt;/navigation-case&gt;
+&lt;/navigation-rule&gt;</code></pre>
+			
+			<h3>com/corejsf/SampleBean.java</h3>
+			
+			<pre><code>public class SampleBean {
+public String login() { if (...) return
+"success"; else return "error"; }
+...
+}</code></pre>
+			
+			<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img04_radio.jpg" width="268" height="23" alt="Radio Buttons">
+
+<h4>page.jspx</h4>
+<pre><code>&lt;h:selectOneRadio value="#{form.condiment}&gt;
+&lt;f:selectItems value="#{form.condimentItems}"/&gt;
+&lt;/h:selectOneRadio&gt;</code></pre>
+
+<h4>com/corejsf/SampleBean.java</h4>
+<pre><code>public class SampleBean {
+private Map&lt;String, Object&gt; condimentItem = null;
+public Map&lt;String, Object&gt; getCondimentItems() {
+if (condimentItem == null) {
+condimentItem = new LinkedHashMap&lt;String,
+Object&gt;();
+condimentItem.put("Cheese", 1); // label, value
+condimentItem.put("Pickle", 2);
+...
+}
+return condimentItem;
+}
+public int getCondiment() { ... }
+public void setCondiment(int value) { ... }
+...
+}</code></pre>
+
+<h3>Validation and Conversion</h3>
+
+<h4>page.jspx</h4>
+<pre><code>&lt;h:inputText value="#{payment.amount}"
+required="true"&gt;
+&lt;f:validateDoubleRange maximum="1000"/&gt;
+&lt;/h:inputText&gt;
+&lt;h:outputText value="#{payment.amount}"&gt;
+&lt;f:convertNumber type="currency"/&gt;
+&lt;!-- number displayed with currency symbol and
+group separator: $1,000.00 --&gt;
+&lt;/h:outputText&gt;</code></pre>
+
+<h3>Error Messages</h3>
+
+<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img05_errormsg.jpg" width="448" height="46" alt="Error Messages">
+
+<h4>page.jspx</h4>
+<pre><code>&lt;h:outputText value="Amount"/&gt;
+&lt;h:inputText id="amount" label="Amount"
+value="#{payment.amount}"/&gt;
+&lt;!-- label is used in message text --&gt;
+&lt;h:message for="amount"/&gt;</code></pre>
+
+<h3>Resources and Styles</h3>
+<h4>page.jspx</h4>
+<pre><code>&lt;head&gt;
+&lt;link href="styles.css" rel="stylesheet"
+type="text/css"/&gt;
+...
+&lt;/head&gt;
+&lt;body&gt;
+...
+&lt;h:outputText value="#{msgs.goodbye}!"
+styleClass="goodbye"&gt;
+...
+&lt;/body&gt;</code></pre>
+
+<h4>faces-config.xml</h4>
+<pre><code>&lt;application&gt;
+&lt;resource-bundle&gt;
+&lt;base-name&gt;com.corejsf.messages&lt;/base-name&gt;
+&lt;var&gt;msgs&lt;/var&gt;
+&lt;/resource-bundle&gt;
+&lt;/application&gt;</code></pre>
+<h4>com/corejsf/messages.properties</h4>
+<pre><code>goodbye=Goodbye</code></pre>
+<h4>com/corejsf/messages_de.properties</h4>
+<pre><code>goodbye=Auf Wiedersehen</code></pre>
+<h4>styles.css</h4>
+<pre><code>.goodbye {
+font-style: italic;
+font-size: 1.5em;
+color: #eee;
+}</code></pre>
+
+<h3>Table with links</h3>
+
+<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th>Name</th>
+  					<th>&nbsp;</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">Washington, George</td>
+  					<td class="left_td_colored"><a href="">Delete</a></td>
+  				</tr>
+  				<tr>
+  					<td class="right_td_colored">Jefferson, Thomas</td>
+  					<td class="right_td_colored"><a href="">Delete</a></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">Lincoln, Abraham</td>
+  					<td class="left_td_colored"><a href="">Delete</a></td>
+  				</tr>
+  				<tr>
+  					<td class="right_td_colored">Roosevelt, Theodore</td>
+  					<td class="right_td_colored"><a href="">Delete</a></td>
+  				</tr>
+        </tbody>
+				</table>
+
+				<h4>page.jspx</h4>
+<pre><code>&lt;h:dataTable value="#{bean1.entries}" var="row"
+styleClass="table" rowClasses="even,odd"&gt;
+&lt;h:column&gt;
+&lt;f:facet name="header"&gt;
+&lt;h:outputText value="Name"/&gt;
+&lt;/f:facet&gt;
+&lt;h:outputText value="#{row.name}"/&gt;
+&lt;/h:column&gt;
+&lt;h:column&gt;
+&lt;h:commandLink value="Delete" action="#{bean1.
+deleteAction}" immediate="true"&gt;
+&lt;f:setPropertyActionListener target="#{bean1.
+idToDelete}"
+value="#{row.id}"/&gt;
+&lt;/h:commandLink&gt;
+&lt;/h:column&gt;
+&lt;/h:dataTable&gt;</code></pre>
+<h4>com/corejsf/SampleBean.java</h4>
+<pre><code>public class SampleBean {
+private int idToDelete;
+public void setIdToDelete(int value) {idToDelete
+= value; }
+public String deleteAction() {
+// delete the entry whose id is idToDelete
+return null;
+}
+public List&lt;Entry&gt; getEntries() {...}
+...
+}</code></pre>
+
+<h2>LifeCycle</h2>
+
+<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img06a_lifecycle.jpg" width="462" height="221" alt="Lifecycle">
+
+<h2>faces-config.xml</h2>
+
+<p>The faces-config.xml file contains a sequence of the following
+entries.</p>
+<ul>
+<li>managed-bean
+	<ol>
+	<li>description , display-name, icon (optional)</li>
+  <li>managed-bean-name</li>
+  <li>managed-bean-class</li>
+  <li>managed-bean-scope</li>
+  <li>managed-property (0 or more, other optional choices
+  are map-entries and list-entries which are not
+  shown here)
+  	<ol>
+		<li>description, display-name, icon (optional)</li>
+  	<li>property-name</li>
+  	<li>value (other choices are null-value, map-entries,
+  list-entries which are not shown here)</li></ol></li></ol></li>
+
+<li>navigation-rule
+  <ol>
+	<li>description, display-name, icon (optional)</li>
+  <li>from-view-id (optional, can use wildcards)</li>
+  <li>navigation-case (1 or more)
+    <ul>
+		<li>from-action (optional, not common)</li>
+    <li>from-outcome</li>
+    <li>to-view-id</li></ul></li></ol>
+</li>
+
+<li>application
+  <ul>
+	<li>resource-bundle
+    <ol>
+		<li>base-name</li>
+    <li>var</li>
+		</ol>
+	</li>
+  <li>action-listener, default-render-kit-id,
+  resource-bundle, view-handler, state-manager, elresolver,
+  property-resolver, variable-resolver,
+  application-extension (details not shown)</li>
+	</ul>
+</li>
+
+<li>converter
+	<ul>
+	<li>converter-id</li>
+  <li>converter-class</li>
+  <li>Optional initialization (not shown here)</li>
+	</ul>
+</li>
+
+<li>validator
+	<ul>
+	<li>validator-id</li>
+	<li>validator-class</li>
+	<li>Optional initialization (not shown here)</li></ul></li>
+
+<li>lifecycle
+	<ul><li>phase-listener</li></ul></li>
+
+<li>component, factory, referenced-bean, render-kit,
+faces-config-extension (details not shown)</li>
+</ul>
+
+<h2>web.xml</h2>
+
+<pre><code>&lt;?xml version="1.0"?&gt;
+&lt;web-app xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchemainstance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+version="2.5"&gt;
+&lt;servlet&gt;
+&lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+&lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/
+servlet-class&gt;
+&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+&lt;!-- Add this element to change the extension for
+JSF page files (Default: .jsp) --&gt;
+&lt;context-param&gt;
+&lt;param-name&gt;javax.faces.DEFAULT_SUFFIX&lt;/paramname&gt;
+&lt;param-value&gt;.jspx&lt;/param-value&gt;
+&lt;/context-param&gt;
+&lt;servlet-mapping&gt;
+&lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+&lt;url-pattern&gt;*.faces&lt;/url-pattern&gt;
+&lt;!-- Another popular URL pattern is /faces/* --&gt;
+&lt;/servlet-mapping&gt;
+&lt;welcome-file-list&gt;
+&lt;welcome-file&gt;index.faces&lt;/welcome-file&gt;
+&lt;!-- Create a blank index.faces (in addition to
+index.jspx) --&gt;
+&lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+&lt;!-- Use &lt;meta http-equiv="Refresh" content=
+"0; URL=index.faces"/&gt; --&gt;
+&lt;/welcome-file-list&gt;
+&lt;/web-app&gt;
+</code></pre>
+
+<h2>The JSF Expression Language (EL)</h2>
+
+<p>An EL expression is a sequence of literal strings and expressions
+of the form base[expr1][expr2]... As in JavaScript, you
+can write base.identifier instead of base['identifier'] or
+base["identifier"]. The base is one of the names in the table
+below or a name defined in faces-config.xml.</p>
+
+<table cellpadding="0" cellspacing="0"> 
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">header</td>
+  					<td class="right_td_colored">A Map of HTTP header parameters, containing only the first
+value for each name.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">headerValues</td>
+  					<td class="right_td_colored">A Map of HTTP header parameters, yielding a String[] array of
+all values for a given name</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">param</td>
+  					<td class="right_td_colored">A Map of HTTP request parameters, containing only the first
+value for each name.</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">paramValues</td>
+  					<td class="right_td_colored">A Map of HTTP request parameters, yielding a String[] array of
+all values for a given name.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">cookie</td>
+  					<td class="right_td_colored">A Map of the cookie names and values of the current request.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">initParam</td>
+  					<td class="right_td_colored">A Map of the initialization parameters of this web application.</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">requestScope</td>
+  					<td class="right_td_colored">A Map of all request scope attributes.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">sessionScope</td>
+  					<td class="right_td_colored">A Map of all session scope attributes.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">applicationScope</td>
+  					<td class="right_td_colored">A Map of all application scope attributes.</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">facesContext</td>
+  					<td class="right_td_colored">The FacesContext instance of this request.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">view</td>
+  					<td class="right_td_colored">The UIViewRoot instance of this request.</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			<p>There are two expression types:</p>
+<ul>
+<li>n Value expression: a reference to a bean property or an
+entry in a map, list, or array. Examples: <br>
+
+<code>userBean.name</code> calls <code>getName</code> or <code>setName</code> on the <code>userBean</code>
+object<br>
+
+<code>pizza.choices[var]</code> calls <code>pizza.getChoices( ).get(var)</code>
+or <code>pizza.getChoices( ).put(var, ...)</code></li>
+
+<li>n Method expression: a reference to a method and the
+object on which it is to be invoked. Example:<br>
+
+<code>userBean.login</code> calls the <code>login</code> method on the <code>userBean</code>
+object when it is invoked.</li></ul>
+
+<p>In JSF, EL expressions are enclosed in <code>#{...}</code> to indicate
+<em>deferred evaluation</em>. The expression is stored as a string and
+evaluated when needed. In contrast, JSP uses immediate
+evaluation, indicated by <code>${...}</code> delimiters.</p>
+			
+			<h2>JSF Core Tags</h2>
+			
+			<table cellpadding="0" cellspacing="0" bgcolor="#ffffff"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Tag</th>
+  					<th class="right_th_colored">Description/Attributes</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">f:view</td>
+  					<td class="right_td_colored">Creates the top-level view
+<table cellspacing="0" class="plain">
+<tbody><tr><td>locale</td><td>The locale for this view.</td></tr>
+<tr><td>renderKitId
+(JSF 1.2)</td><td>The render kit ID for this view</td></tr>
+<tr><td>beforePhase,
+afterPhase</td><td>Phase listeners that are called in every phase except "restore view"</td></tr>
+</tbody></table>
+
+
+
+</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:subview</td>
+  					<td class="right_td_colored">Creates a subview of a view
+<table>
+<tbody><tr><td>binding, id, rendered</td><td>Basic attributes</td></tr>
+</tbody></table>
+</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:facet</td>
+  					<td class="right_td_colored">Adds a facet to a component
+						<table>
+<tbody><tr><td>name</td><td>the name of this facet</td></tr>
+</tbody></table></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">f:attribute</td>
+  					<td class="right_td_colored">Adds an attribute to a component
+						<table>
+<tbody><tr><td>name, value</td><td>the name and value of the attribute to set</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:param</td>
+  					<td class="right_td_colored">Constructs a parameter child component
+						<table>
+<tbody><tr><td>name</td><td>An optional name for this parameter
+component.</td></tr>
+<tr><td>value</td><td>The value stored in this component.</td></tr>
+<tr><td>binding, id</td><td>Basic attributes</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:actionListener<br>
+
+f:valueChangeListener</td>
+  					<td class="right_td_colored">Adds an action listener or value change listener to a
+component
+						<table>
+<tbody><tr><td>type</td><td>The name of the listener class</td></tr>
+</tbody></table></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">f:setPropertyChange
+Listener (JSF 1.2)</td>
+  					<td class="right_td_colored">Adds an action listener to a component that sets a bean
+property to a given value.
+						<table>
+<tbody><tr><td>value</td><td>The bean property to set when the
+action event occurs</td></tr>
+<tr><td>binding, id</td><td>The value to set it to</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:converter</td>
+  					<td class="right_td_colored">Adds an arbitary converter to a component
+						<table>
+<tbody><tr><td>converterId</td><td>The ID of the converter</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:convertDateTime</td>
+  					<td class="right_td_colored">Adds a datetime converter to a component
+						<table>
+<tbody><tr><td>type</td><td>date (default), time, or both</td></tr>
+<tr><td>dateStyle</td><td>default, short, medium, long, or full</td></tr>
+<tr><td>timeStyle</td><td>default, short, medium, long, or full</td></tr>
+<tr><td>pattern</td><td>Formatting pattern, as defined in java.
+text.SimpleDateFormat</td></tr>
+<tr><td>locale</td><td>Locale whose preferences are to be used
+for parsing and formatting</td></tr>
+<tr><td>timezone</td><td>Time zone to use for parsing and
+formatting</td></tr>
+</tbody></table></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">f:convertNumber</td>
+  					<td class="right_td_colored">Adds a number converter to a component
+						<table>
+<tbody><tr><td>type</td><td>number (default), currency , or
+percent</td></tr>
+<tr><td>pattern</td><td>Formatting pattern, as defined in
+java.text.DecimalFormat</td></tr>
+<tr><td>maxFractionDigits</td><td>Maximum number of digits in the
+fractional part</td></tr>
+<tr><td>minFractionDigits</td><td>Minimum number of digits in the
+fractional part</td></tr>
+<tr><td>maxIntegerDigits</td><td>Maximum number of digits in the
+integer part</td></tr>
+<tr><td>minIntegerDigits</td><td>Minimum number of digits in the
+integer part</td></tr>
+<tr><td>integerOnly</td><td>True if only the integer part is
+parsed (default: false)</td></tr>
+<tr><td>groupingUsed</td><td>True if grouping separators are
+used (default: true)</td></tr>
+<tr><td>locale</td><td>Locale whose preferences are to
+be used for parsing and formatting</td></tr>
+<tr><td>currencyCode</td><td>
+ISO 4217 currency code to use
+when converting currency values</td></tr>
+<tr><td>currencySymbol</td><td>Currency symbol to use when
+converting currency values</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:validator</td>
+  					<td class="right_td_colored">Adds a validator to a component
+						<table>
+<tbody><tr><td>validatorId</td><td>The ID of the validator</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:validateDoubleRange<br>
+f:validateLongRange<br>
+f:validateLength</td>
+  					<td class="right_td_colored">Validates a double or long value, or the length of a string
+						<table>
+<tbody><tr><td>minimum, maximum</td><td>the minimum and maximum of the
+valid rang</td></tr>
+</tbody></table></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">f:loadBundle</td>
+  					<td class="right_td_colored">Loads a resource bundle, stores properties as a Map
+						<table>
+<tbody><tr><td>basename</td><td>The resource bundle name</td></tr>
+<tr><td>value</td><td>The name of the variable that is bound to
+the bundle map</td></tr>
+</tbody></table>
+</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:selectitems</td>
+  					<td class="right_td_colored">Specifies items for a select one or select many component
+						<table>
+<tbody><tr><td>binding, id</td><td>Basic attributes</td></tr>
+<tr><td>value</td><td>Value expression that points to a
+SelectItem, an array or Collection of
+SelectItem objects, or a Map mapping
+labels to values.</td></tr>
+</tbody></table></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">f:selectitem</td>
+  					<td class="right_td_colored">Specifies an item for a select one or select many
+component
+						<table>
+<tbody><tr><td>binding, id</td><td>Basic attributes</td></tr>
+<tr><td>itemDescription</td><td>Description used by tools only</td></tr>
+<tr><td>itemDisabled</td><td>Boolean value that sets the item's
+disabled property</td></tr>
+<tr><td>itemLabel</td><td>Text shown by the item</td></tr>
+<tr><td>itemValue</td><td>Item's value, which is passed to the
+server as a request parameter</td></tr>
+<tr><td>value</td><td>Value expression that points to a
+SelectItem instance</td></tr>
+</tbody></table></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">f:verbatim</td>
+  					<td class="right_td_colored">Adds markup to a JSF page
+						<table>
+<tbody><tr><td>escape</td><td>If set to true, escapes &lt;, &gt;, and &amp;
+characters. Default value is false.</td></tr>
+<tr><td>rendered (JSF 1.2)</td><td>Basic attributes</td></tr>
+</tbody></table></td>
+  				</tr>
+        </tbody>
+				</table>
+
+<h2>JSF HTML TAGS</h2>			
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Tag</th>
+  					<th class="right_th_colored">Description</th>
+						<th class="right_th_colored"></th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">h:form</td>
+  					<td class="right_td_colored">HTML form</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:inputText</td>
+  					<td class="right_td_colored">Single-line text input control</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img06b_slinputtext.jpg" width="110" height="19" alt="Single line input text"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:inputTextarea</td>
+  					<td class="right_td_colored">Multiline text input control</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img06c_mlinputtext.jpg" width="82" height="32" alt="multi-line input text"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:inputSecret</td>
+  					<td class="right_td_colored">Password input control</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img06d_password.jpg" width="133" height="24" alt="password"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:inputHidden</td>
+  					<td class="right_td_colored">Hidden field</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:outputLabel</td>
+  					<td class="right_td_colored">Label for another
+component for accessibility</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:outputLink</td>
+  					<td class="right_td_colored">HTML anchor</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img07_javanet.jpg" width="133" height="35" alt="javanet"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:outputFormat</td>
+  					<td class="right_td_colored">Like outputText, but
+formats compound
+messages</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">h:outputText</td>
+  					<td class="right_td_colored">Single-line text output</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:commandButton</td>
+  					<td class="right_td_colored">Button: submit, reset, or
+pushbutton</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img08_pressme2.jpg" width="50" height="15" alt="Button"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:commandLink</td>
+  					<td class="right_td_colored">Link that acts like a
+pushbutton.</td>
+						<td class="right_td_colored"><a href="">register</a></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:message</td>
+  					<td class="right_td_colored">Displays the most recent
+message for a component</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img10_amttoomuch.jpg" width="144" height="55" alt="Message"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:messages</td>
+  					<td class="right_td_colored">Displays all messages</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:grapicImage</td>
+  					<td class="right_td_colored">Displays an image</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img11_rushmore.jpg" width="31" height="36" alt="Image"></td>
+  				</tr>
+					
+					<tr>
+  					<td class="left_td_colored">h:selectOneListbox</td>
+  					<td class="right_td_colored">Single-select listbox</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img12_listbox.jpg" width="54" height="53" alt="Single-select listbox"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:selectOneMenu</td>
+  					<td class="right_td_colored">Single-select menu</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img13_ssmenu.jpg" alt="Single-select menu"></td>
+  				</tr>
+					
+					<tr>
+  					<td class="left_td_colored">h:selectOneRadio</td>
+  					<td class="right_td_colored">Set of radio buttons</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img14_radio.jpg" width="98" height="17" alt="Set of radio buttons"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:selectBooleanCheckbox</td>
+  					<td class="right_td_colored">Checkbox</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img15_checkbox.jpg" width="99" height="16" alt="Checkbox"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:selectManyCheckbox</td>
+  					<td class="right_td_colored">Multiselect listbox</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img16_mscheckbox.jpg" width="142" height="16" alt="Multiselect listbox"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:selectManyListbox</td>
+  					<td class="right_td_colored">Multiselect listbox</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img17_mslistbox.jpg" width="57" height="64" alt="Multiselect listbox"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:selectManyMenu</td>
+  					<td class="right_td_colored">Multiselect menu</td>
+						<td class="right_td_colored"><img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img18_msmenu.jpg" width="54" height="18" alt="Multiselect menu"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:panelGrid</td>
+  					<td class="right_td_colored">HTML table</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:panelGroup</td>
+  					<td class="right_td_colored">Two or more components
+that are laid out as one</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:dataTable</td>
+  					<td class="right_td_colored">A feature-rich table
+component</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">h:column</td>
+  					<td class="right_td_colored">Column in a data table</td>
+						<td class="right_td_colored"></td>
+  				</tr>
+        </tbody>
+				</table>
+			
+			<h2>Basic Attributes</h2>
+			
+			
+			
+ <p>Identifier for a component
+binding Reference to the component that can be used in a backing
+bean
+rendered A boolean; false suppresses rendering
+styleClass Cascading stylesheet (CSS) class name
+value A component's value, typically a value binding
+valueChangeListener A method binding to a method that responds to value
+changes
+converter Converter class name
+validator Class name of a validator that's created and attached to a
+component
+required A boolean; if true, requires a value to be entered in the
+associated field</p>
+			
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">id</td>
+  					<td class="right_td_colored">Identifier for a component</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding</td>
+  					<td class="right_td_colored">Reference to the component that can be used in a backing
+bean</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">rendered</td>
+  					<td class="right_td_colored">A boolean; false suppresses rendering</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">styleClass</td>
+  					<td class="right_td_colored">Cascading stylesheet (CSS) class name</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">value</td>
+  					<td class="right_td_colored">A component's value, typically a value binding</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">valueChangeListener</td>
+  					<td class="right_td_colored">A method binding to a method that responds to value
+changes</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">converter</td>
+  					<td class="right_td_colored">Converter class name</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">validator</td>
+  					<td class="right_td_colored">Class name of a validator that's created and attached to a
+component</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">required</td>
+  					<td class="right_td_colored">A boolean; if true, requires a value to be entered in the
+associated field</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			<h3>Attributes for h:form</h3>
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">binding, id, rendered, styleClass</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">accept, acceptcharset, dir, enctype, lang,
+style, target, title</td>
+  					<td class="right_td_colored">HTML 4.0 attributes
+(acceptcharset corresponds to
+HTML accept-charset)</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick, ondblclick, onfocus,
+onkeydown, onkeypress, onkeyup, onmousedown,
+onmousemove, onmouseout, onmouseover, onreset,
+onsubmit</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			<h3>Attributes for h:inputText,
+h:inputSecret, h:inputTextarea,
+and h:inputHidden <img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img19_inputtext.jpg" width="129" height="21" alt="Attributes for text area"></h3>
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">cols</td>
+  					<td class="right_td_colored">For h:inputTextarea only,number of columns</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">immediate</td>
+  					<td class="right_td_colored">Process validation early in the life cycle</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">redisplay</td>
+  					<td class="right_td_colored">For h:inputSecret only,when true, the input
+field's value is redisplayed when the web page is
+reloaded</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">required</td>
+  					<td class="right_td_colored">Require input in the component when the form is
+submitted</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">rows</td>
+  					<td class="right_td_colored">For h:inputTextarea only,number of rows</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">valueChangeListener</td>
+  					<td class="right_td_colored">A specified listener that's notified of value changes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, converter, id, rendered,
+required, styleClass, value,
+validator</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">accesskey, alt, dir,
+disabled, lang, maxlength,
+readonly, size, style,
+tabindex, title</td>
+  					<td class="right_td_colored">HTML 4.0 pass-through attributes,alt, maxlength,
+and size do not apply to h:inputTextarea. None
+apply to h:inputHidden</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick,
+ondblclick, onfocus,
+onkeydown, onkeypress,
+onkeyup, onmousedown,
+onmousemove, onmouseout,
+onmouseover, onselect</td>
+  					<td class="right_td_colored">DHTML events. None apply to h:inputHidden</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			<h3>Attributes for h:outputText and
+h:outputFormat</h3>
+			
+			
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">escape</td>
+  					<td class="right_td_colored">If set to true, escapes &lt;, &gt;, and &amp;
+characters. Default value is true.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, converter, id, rendered,
+styleClass, value</td>
+  					<td class="right_td_colored">Basic at tributes</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">style, title</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+			<h3>Attributes for h:outputLabel</h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">for</td>
+  					<td class="right_td_colored">The ID of the component to be labeled.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, converter, id, rendered,
+value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+			<h3>Attributes for h:graphicImage <img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img11_rushmore.jpg" width="31" height="36" alt="Image"></h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">binding, id, rendered, styleClass, value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">alt, dir, height, ismap, lang, longdesc, style,
+title, url, usemap, width</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick, ondblclick, onfocus,
+onkeydown, onkeypress, onkeyup, onmousedown,
+onmousemove, onmouseout, onmouseover,
+onmouseup</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+  	    </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+
+
+
+<h3>Attributes for h:commandButton
+and h:commandLink <img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img08_pressme2.jpg" width="50" height="15" alt="Button"></h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">action </td>
+  					<td class="right_td_colored">If specified as a string: Directly specifies an
+outcome used by the navigation handler to
+determine the JSF page to load next as a result
+of activating the button or link If specified as a
+method binding: The method has this signature:
+String methodName(); the string represents
+the outcome
+</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">actionListener </td>
+  					<td class="right_td_colored">A method binding that refers to a method with
+this signature: void methodName(ActionEvent)</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">charset</td>
+  					<td class="right_td_colored">For h:commandLink only,The character
+encoding of the linked reference</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">image</td>
+  					<td class="right_td_colored">For h:commandButton only,A context-relative
+path to an image displayed in a button. If you
+specify this attribute, the HTML input's type will
+be image.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">immediate</td>
+  					<td class="right_td_colored">A boolean. If false (the default), actions and action
+listeners are invoked at the end of the request
+life cycle; if true, actions and action listeners are
+invoked at the beginning of the life cycle.</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">type</td>
+  					<td class="right_td_colored">For h:commandButton: The type of
+the generated input element: button,
+submit, or reset. The default, unless you
+specify the image attribute, is submit. For
+h:commandLink: The content type of the
+linked resource; for example, text/html, image/
+gif, or audio/basic</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">value</td>
+  					<td class="right_td_colored">The label displayed by the button or link.
+You can specify a string or a value reference
+expression.</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">accesskey, alt, binding, id, lang,
+rendered, styleClass, value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">coords (h:commandLink only), dir,
+disabled (h:commandButton only),
+hreflang (h:commandLink only),
+lang, readonly, rel (h:commandLink
+only), rev (h:commandLink only),
+shape (h:commandLink only), style,
+tabindex, target (h:commandLink
+only), title, type</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick,
+ondblclick, onfocus, onkeydown,
+onkeypress, onkeyup, onmousedown,
+onmousemove, onmouseout,
+onmouseover, onmouseup, onselect</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+
+
+
+<h3>Attributes for h:outputLink <img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img07_javanet.jpg" width="133" height="35" alt="outputLink"></h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">accesskey, binding, converter, id,
+lang, rendered, styleClass, value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">charset, coords, dir, hreflang, lang,
+rel, rev, shape, style, tabindex,
+target, title, type</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick, ondblclick,
+onfocus, onkeydown, onkeypress, onkeyup,
+onmousedown, onmousemove, onmouseout,
+onmouseover, onmouseup</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+		
+
+
+<h3>Attributes for:<br>
+
+h:selectBooleanCheckbox,<br>
+
+h:selectManyCheckbox,<br>
+h:selectOneRadio,<br>
+
+h:selectOneListbox,<br>
+h:selectManyListbox,<br>
+
+h:selectOneMenu,<br>
+h:selectManyMenu<br>
+<img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img21_radio.jpg" width="463" height="34" alt="Radio"></h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">disabledClass</td>
+  					<td class="right_td_colored">CSS class for disabled elements,for
+h:selectOneRadio and h:selectManyCheckbox
+only</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">enabledClass</td>
+  					<td class="right_td_colored">CSS class for enabled elements,for
+h:selectOneRadio and h:selectManyCheckbox
+only</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">layout</td>
+  					<td class="right_td_colored">Specification for how elements are laid out:
+lineDirection (horizontal) or pageDirection
+(vertical),for h:selectOneRadio and
+h:selectManyCheckbox only</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, converter, id,
+immediate, styleClass,
+required, rendered,
+validator, value,
+valueChangeListener</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">accesskey, border, dir,
+disabled, lang, readonly,
+style, size, tabindex,
+title</td>
+  					<td class="right_td_colored">HTML 4.0,border is applicable to
+h:selectOneRadio and h:selectManyCheckbox
+only. size is applicable to h:selectOneListbox and
+h:selectManyListbox only</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">onblur, onchange, onclick,
+ondblclick, onfocus,
+onkeydown, onkeypress,
+onkeyup, onmousedown,
+onmousemove, onmouseout,
+onmouseover, onmouseup,
+onselect</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+		
+
+<h3>Attributes for h:message and h:messages<br>
+ <img src="/sites/all/modules/dzone/assets/refcardz/021/images/rc021-jsf_img20_amttoomuch.jpg" width="366" alt="Attributes for h:message and h:messages"></h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">for</td>
+  					<td class="right_td_colored">The ID of the component whose message is displayed,applicable
+only to h:message</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">errorClass</td>
+  					<td class="right_td_colored">CSS class applied to error messages</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">errorStyle</td>
+  					<td class="right_td_colored">CSS style applied to error messages</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">fatalClass</td>
+  					<td class="right_td_colored">CSS class applied to fatal messages</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">fatalStyle</td>
+  					<td class="right_td_colored">CSS style applied to fatal messages</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">globalOnly</td>
+  					<td class="right_td_colored">Instruction to display only global messages,applicable only to
+h:messages. Default: false</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">infoClass</td>
+  					<td class="right_td_colored">CSS class applied to information messages</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">infoStyle</td>
+  					<td class="right_td_colored">CSS style applied to information messages</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">layout</td>
+  					<td class="right_td_colored">Specification for message layout: table or list,applicable only
+to h:messages</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">showDetail</td>
+  					<td class="right_td_colored">A boolean that determines whether message details are shown.
+Defaults are false for h:messages, true for h:message</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">showSummary</td>
+  					<td class="right_td_colored">A boolean that determines whether message summaries are
+shown. Defaults are true for h:messages, false for h:message</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">tooltip</td>
+  					<td class="right_td_colored">A boolean that determines whether message details are rendered
+in a tooltip; the tooltip is only rendered if showDetail and
+showSummary are true</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">warnClass</td>
+  					<td class="right_td_colored">CSS class for warning messages</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">warnStyle</td>
+  					<td class="right_td_colored">CSS style for warning messages</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">binding, id,
+rendered,
+styleClass</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">style, title</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+
+
+
+
+<h3>Attributes for h:panelGrid</h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">bgcolor</td>
+  					<td class="right_td_colored">Background color for the table</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">border</td>
+  					<td class="right_td_colored">Width of the table's border</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">cellpadding</td>
+  					<td class="right_td_colored">Padding around table cells</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">cellspacing</td>
+  					<td class="right_td_colored">Spacing between table cells</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">columnClasses</td>
+  					<td class="right_td_colored">Comma-separated list of CSS classes for columns</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">columns</td>
+  					<td class="right_td_colored">Number of columns in the table</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">footerClass</td>
+  					<td class="right_td_colored">CSS class for the table footer</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">frame</td>
+  					<td class="right_td_colored">Specification for sides of the frame surrounding the table
+that are to be drawn; valid values: none, above, below,
+hsides, vsides, lhs, rhs, box, border</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">headerClass</td>
+  					<td class="right_td_colored">CSS class for the table header</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">rowClasses</td>
+  					<td class="right_td_colored">Comma-separated list of CSS classes for columns</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">rules</td>
+  					<td class="right_td_colored">Specification for lines drawn between cells; valid values:
+groups, rows, columns, all</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">summary</td>
+  					<td class="right_td_colored">Summary of the table's purpose and structure used for
+non-visual feedback such as speech</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, id, rendered,
+styleClass, value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">dir, lang, style,
+title, width</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">onclick, ondblclick,
+onkeydown, onkeypress,
+onkeyup, onmousedown,
+onmousemove,
+onmouseout,
+onmouseover,
+onmouseup</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+
+				
+
+<h3>Attributes for h:panelGroup</h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">binding, id, rendered,
+styleClass</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">style</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+					</tbody>
+				</table>
+					
+					
+					<h3>Attributes for h:dataTable</h3>
+					
+					
+					
+					<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>			
+					<tr>
+  					<td class="left_td_colored">bgcolor</td>
+  					<td class="right_td_colored">Background color for the table</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">border</td>
+  					<td class="right_td_colored">Width of the table's border</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">cellpadding</td>
+  					<td class="right_td_colored">Padding around table cells</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">cellspacing</td>
+  					<td class="right_td_colored">Spacing between table cells</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">columnClasses</td>
+  					<td class="right_td_colored">Comma-separated list of CSS classes for columns</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">first</td>
+  					<td class="right_td_colored">Index of the first row shown in the table</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">footerClass</td>
+  					<td class="right_td_colored">CSS class for the table footer</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">frame</td>
+  					<td class="right_td_colored">Frame Specification for sides of the frame surrounding the
+table that are to be drawn; valid values: none, above, below,
+hsides, vsides, lhs, rhs, box, border</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">headerClass</td>
+  					<td class="right_td_colored">CSS class for the table header</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">rowClasses</td>
+  					<td class="right_td_colored">Comma-separated list of CSS classes for rows</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">rules</td>
+  					<td class="right_td_colored">Specification for lines drawn between cells; valid values:
+groups, rows, columns, all</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">summary</td>
+  					<td class="right_td_colored">Summary of the table's purpose and structure used for nonvisual
+feedback such as speech</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">var</td>
+  					<td class="right_td_colored">The name of the variable created by the data table that
+represents the current item in the value</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">binding, id, rendered,
+styleClass, value</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">dir, lang, style, title,
+width</td>
+  					<td class="right_td_colored">HTML 4.0</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">onclick, ondblclick,
+onkeydown, onkeypress,
+onkeyup, onmousedown,
+onmousemove, onmouseout,
+onmouseover, onmouseup</td>
+  					<td class="right_td_colored">DHTML events</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+
+
+				
+
+<h3>Attributes for h:column</h3>
+
+
+			<table cellpadding="0" cellspacing="0"> 
+  			<thead>
+  				<tr>
+  					<th class="left_th_colored">Attribute</th>
+  					<th class="right_th_colored">Description</th>
+  				</tr>
+  			</thead>
+  			<tbody>
+  				<tr>
+  					<td class="left_td_colored">headerClass (JSF 1.2)</td>
+  					<td class="right_td_colored">CSS class for the column's header</td>
+  				</tr>
+  				<tr>
+  					<td class="left_td_colored">footerClass (JSF 1.2)</td>
+  					<td class="right_td_colored">CSS class for the column's footer</td>
+  				</tr>
+					<tr>
+  					<td class="left_td_colored">binding, id, rendered</td>
+  					<td class="right_td_colored">Basic attributes</td>
+  				</tr>
+        </tbody>
+				</table>
+
+			
+			
+			
+			
+			
+
+			
+
+<div id="author_bio_book">
+	<div id="author_bio">		
+		<h3>About The Author</h3>
+		<p><img src="/sites/all/modules/dzone/assets/refcardz/021/images/author.jpg" width="99" height="127" alt="Photo of author Cay S. Horstmann"></p>
+		<h4>Cay S. Horstmann</h4>
+		<p>Cay S. Horstmann has written many books on C++, Java and objectoriented
+development, is the series editor for Core Books at Prentice-Hall
+and a frequent speaker at computer industry conferences. For four years,
+Cay was VP and CTO of an Internet startup that went from 3 people in a
+tiny office to a public company. He is now a computer science professor
+at San Jose State University. He was elected Java Champion in 2005. </p>
+		<h5>Publications</h5>
+		<ul>
+			<li><a href="http://books.dzone.com/books/corejava">Core Java</a>, with Gary Cornell, Sun Microsystems Press 1996 - 2007 (8 editions)</li>
+			<li><a href="http://books.dzone.com/books/jsf">Core JavaServer Faces</a>, with David Geary, Sun Microsystems Press, 2004-2006 (2 editions)</li>
+			<li><a href="http://books.dzone.com/books/bigjava">Big Java</a>, John Wiley &amp; Sons 2001 - 2007 (3 editions)</li>
+		</ul>
+<h5>Blog</h5>
+		<ul>
+			<li><a href="http://weblogs.java.net/blog/cayhorstmann">http://weblogs.java.net/blog/cayhorstmann</a></li>
+		</ul>		
+<h5>Web site</h5>
+		<ul>
+			<li><a href="http://horstmann.com">http://horstmann.com</a></li>
+		</ul>			
+		
+		
+	</div>
+	<div id="suggested_book">
+		<h3>Recommended Book</h3>
+		<img src="/sites/all/modules/dzone/assets/refcardz/021/images/book_rc021-jsf.jpg" width="146" height="193" alt="Book cover of Core JavaServer Faces" id="recommended_book_cover">
+		<p>Core JavaServer Faces
+delves into all facets of
+JSF development, offering
+systematic best practices for
+building robust applications
+and maximizing developer
+productivity.</p>
+		<hr>
+		<div id="purchase">
+			<p id="buy_book">BUY NOW</p>
+			<p><a href="http://books.dzone.com/books/jsf" title="Buy the book now.">books.dzone.com/books/jsf</a></p>
+		</div>
+	</div>
+</div>

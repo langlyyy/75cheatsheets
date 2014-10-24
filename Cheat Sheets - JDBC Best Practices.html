@@ -1,0 +1,709 @@
+ <meta http-equiv="Content-Type" content="text/html; charset=gbk">
+        <title>JDBC Best Practices</title>
+        
+		<script type="text/javascript">
+            var uagent = navigator.userAgent.toLowerCase();           
+            if (uagent.search("android") > -1) {
+              document.write('<link rel="stylesheet" href="css/refcardz_html_android.css" type="text/css" media="screen">');
+            }
+        </script>
+    
+        <base href="http://refcardz.dzone.com/" />
+		
+<h1>JDBC<span id="main_topic"> Best Practices</span></h1>
+<p class="author_name">
+   By Jesse Davis
+</p>
+<h2>A BRIEF HISTORY</h2>
+
+<p>Sun Microsystems created JDBC in the 90s to be the standard for data access on the Java Platform. JDBC has evolved since that time from a thin API on top of an ODBC driver to a fully featured data access standard whose capabilities have now surpassed its aging brother, ODBC. In recent applications, JDBC connects persistence layers (such as Hibernate or JPA) to relational data sources; but the JDBC API with its accompanying drivers are always the final piece connecting Java apps to their data! For more in depth (and entertaining) history, watch this movie on the history of Java and JDBC:</p>
+<p><a href="http://www.youtube.com/watch?v=WAy9mgEYb6o">http://www.youtube.com/watch?v=WAy9mgEYb6o</a></p>
+
+<h2>JDBC BASICS</h2>
+
+<h3>Connecting to a Server</h3>
+<p>Getting a basic Connection object from the database is the first operation to get a handle on. The code snippet below gets a connection to a SQL Server database. Note that the Class.forName line is unnecessary if you are using a JDBC 4.0 driver with Java SE 6 or above.</p>
+
+<pre><code>
+String url = “jdbc:datadirect:sqlserver://nc-cqserver:1433;databaseName=testDB;user=test;password=test”;
+try {
+  Class.forName(“com.ddtek.jdbc.sqlserver.SQLServerDriver”);
+  Connection con = DriverManager.getConnection(url);
+}
+catch (Exception except) {
+    SQLException ex = new SQLException(
+		“Error Establishing Connection: “ +
+		except.getMessage());
+		throw ex;
+}
+</code>
+</pre>
+
+<p>It is good to get metaData from the Connection object to see what driver and server version you are using. This comes in handy when its time to debug. Printing to system out or logging to a file is preferable:</p>
+
+<pre><code>
+DatabaseMetaData dbmd = con.getMetaData();
+System.out.println( “\nConnected with “ +
+	dbmd.getDriverName() + “ “ + dbmd.getDriverVersion()
+	+ “{ “ + dbmd.getDriverMajorVersion() + “,” +
+	dbmd.getDriverMinorVersion() +” }” + “ to “ +
+	dbmd.getDatabaseProductName() + “ “ +
+	dbmd.getDatabaseProductVersion() + “\n”);
+</code>
+</pre>
+
+<h3>Retrieving Data</h3>
+
+<p>A straightforward approach to retrieving data from a database is to simply select the data using a Statement object and iterate through the ResultSet object:</p>
+
+<pre><code>
+Statement stmt = con.createStatement();
+ResultSet results = stmt.executeQuery(“Select * from foo”);
+String product;
+int days = 0;
+while (results.next()){
+	product = results.getString(1);
+	 days = results.getInt(2);
+	 System.out.println(product + “\t” + days);
+}
+</code>
+</pre>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+The JDBC specification allows for fetching all data types using getString or getObject; however, it is a best practice to use the correct getXXX method as demonstrated in the code sample above to avoid unnecessary data conversions.
+</div>
+
+<h3>Executing a PreparedStatement</h3>
+
+<p>Use a PreparedStatement any time you have optional parameters to specify to the SQL Statement, or values that do not convert easily to strings, for example BLOBs. It also helps prevent SQL injection attacks when working with string values.</p>
+
+<pre><code>
+PreparedStatement pstmt = con.prepareStatement(“INSERT into table2 (ID, lastName, firstName) VALUES (?,?,?)”);
+pstmt.setInt(1, 87);
+pstmt.setString(2, “Picard”);
+pstmt.setString(3, “Jean-Luc”);
+rowsInserted += pstmt.executeUpdate();
+</code>
+</pre>
+
+<h3>Calling a Stored Procedure via CallableStatement</h3>
+
+<p>Use a CallableStatement any time you wish to execute a stored procedure on the server:</p>
+
+<pre><code>
+CallableStatement cstmt = con.prepareCall(“{CALL STPROC1 (?)}”);
+cstmt.setString(1, “foo”);
+ResultSet rs = cstmt.executeQuery();
+rs.next();
+int value = rs.getInt(1);
+</code>
+</pre>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+CallableStatements can return resultSets, even when inserting data on the server. If the application doesn’t know if results should be returned, check for results by issuing a call to getMoreResults() after execution.
+</div>
+
+<h2>DRIVER TYPES AND ARCHITECTURE</h2>
+
+<h3>TYPE 1: The JDBC-ODBC Bridge</h3>
+<p>The JDBC-ODBC Bridge was the architecture that the first JDBC drivers adopted. This architecture requires an implementation of the JDBC API that then translates the incoming JDBC calls to the appropriate ODBC calls using the JNI (Java Native Interface). The requests are then sent to the underlying ODBC driver (which at the time was just a shell over the database native client libraries). The bridge implementation shipped with the JDK so you only needed the ODBC drivers and native DB client libraries to get started. Although this was a klunky and headache prone approach, it worked.</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-ODBCBridge.jpg" width="193" height="458" alt="JDBC-ODBC" bridge"="">
+
+<h3>TYPE 2: Client Based</h3>
+<p>The next generation of JDBC Drivers was the ever popular Type 2 driver architecture. This architecture eliminated the need for the ODBC driver and instead directly called the native client libraries shipped by the database vendors. This was quickly adopted by the DB vendors as it was quick and inexpensive to implement since they could reuse the existing C/C++ based native libraries. This choice still left Java developers worrying about version and platform compatibility issues (i.e. client version 6 is not supported on HP-Itanium processors).</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-ODBCarchitecture.jpg" width="201" height="465" alt="ODBC" architecture"="">
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Some vendors still do their new development in their native clients first. So, don’t assume that if their website states that the JDBC driver supports Kerberos that they mean their Type 4 driver – they may mean Type 2!
+</div>
+
+<h3>TYPE 3: Two Tier Architecture</h3>
+<p>Type 3 drivers sought to be a 100% Java solution but never really gained much traction. Type 3 drivers had a Java client component and a Java server component, where the latter actually talked to the database. Although this was technically a full Java solution, the database vendors did not like this approach as it was costly – they would have to rewrite their native client libraries which were all C/C++. In addition, this didn’t increase the architectural efficiency as we are really still a 3 tier architecture so it is easy to see why this was never a popular choice.</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-TwoTierArchitecture.jpg" width="222" height="465" alt="Two" tier="" architecture"="">
+
+<h3>TYPE 4: Wire Protocol Drivers</h3>
+<p>The most popular JDBC driver architecture to date is Type 4. This architecture encapsulates the entirety of the JDBC API implementation along with all the logic for communicating directly with the database in a single driver. This allows for easy deployment and streamlines the development process by having a single tier and a small driver all in a 100% java package.</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-DriverArchitecture.jpg" width="268" height="482" alt="driver" architecture"="">
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Type 4 drivers have been the traditional favorite of Java application developers since its inception due to the clean design and ease of use; drop in the driver jar and you’re up and running!
+</div>
+
+<h3>TYPE 5: NEW!</h3>
+<p>While not yet officially sanctioned by the JDBC Expert Group, there is quite a bit of discussion surrounding the new Type 5 driver proposal in the JDBC community. Getting down to the real functional differences, we see this list as the requirements for Type 5 Drivers as follows:</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Codeless Configuration</strong></td>
+		<td class="light_blue">The ability to modify options, check statistics and interact with the driver while it is running. Typically through a standard JMX MBean.</td>
+	</tr>
+	<tr>
+		<td class="dark_blue"><strong>Performance Architecture</strong></td>
+		<td class="light_blue">Drivers specifically designed for multi-core, 64 bit, and virtualized environments.</td>
+	</tr>
+	<tr>
+		<td class="dark_blue"><strong>Clean Spec Implementation</strong></td>
+		<td class="light_blue">Strict adherence to the JDBC standard, solving problems within the specification instead of using proprietary methods that promote vendor lock-in.</td>
+	</tr>
+	<tr>
+		<td class="dark_blue"><strong>Advanced Functionality</strong></td>
+		<td class="light_blue">Type 5 drivers unlock code that has been trapped in the vendor native client libraries and bring that into the Java community. Features include but are not limited to: Bulk Load, Client side High Availability, Kerberos, and others.</td>
+	</tr>
+	
+</tbody></table>
+
+<h2>PERFORMANCE CONSIDERATIONS</h2>
+
+<h3>Pooling (Object Re-use)</h3>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Pooling objects results in significant performance savings.
+In JDBC, pooling Connection and Statement objects is the
+difference between a streamlined app and one that will
+consume all your memory. Make use of these pooling
+suggestions for all your JDBC applications!
+</div>
+
+<p><strong>Connection Pooling</strong> – Enabling Connection pooling allows the
+pool manager to keep connections in a ‘pool’ after they are
+closed. The next time a connection is needed, if the connection
+options requested match one in the pool then that connection
+is returned instead of incurring the overhead of establishing
+another actual socket connection to the server</p>
+
+<p><strong>Statement Pooling</strong> – Setting the MaxPooledStatements
+connection option enables statement pooling.
+Enabling statement pooling allows the driver to re-use
+PreparedStatement objects. When PreparedStatements are
+closed they are returned to the pool instead of being freed
+and the next PreparedStatement with the same SQL statement
+is retrieved from the pool rather than being instantiated and
+prepared against the server.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Don’t use PreparedStatements by default! If your SQL
+statement doesn’t contain parameters use the Statement
+object instead – this avoids a call to internal and wire level
+prepare() methods and increases performance!
+</div>
+
+<h3>MetaData Performance</h3>
+
+<ul>
+	<li>Specify as many ar guments to DatabaseMetaData methods as possible. This avoids unnecessary scans on the database. For example, don’t call getTables like this:</li>
+</ul>
+
+<pre><code>
+ResultSet rs = dbmd.getTables(null,null,null,null);
+</code>
+</pre>
+
+<p>Specifying at least the schema will avoid returning information on all tables for every schema when the request is sent to the server:</p>
+
+<pre><code>
+ResultSet rs = dbmd.getTables(null,”test”,null,null);
+</code>
+</pre>
+
+<ul>
+	<li>Most JDBC drivers populate the ResultSetMetaData object at fetch time because the needed data is returned in the server responses to the fetch request. Some underutilized pieces of ResultSetMetaData include:</li>
+</ul>
+
+<pre><code>
+ResultSetMetaData.getColumnCount()
+ResultSetMetaData.getColumnName()
+ResultSetMetaData.getColumnType()
+ResultSetMetaData.getColumnTypeName()
+ResultSetMetaData.getColumnDisplaySize()
+ResultSetMetaData.getPrecision()
+ResultSetMetaData.getScale()
+</code>
+</pre>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Instead of using getColumns to get data about a table,
+consider issuing a dummy query and using the returned
+ResultSetMetaData which avoids querying the system
+tables!
+</div>
+
+<h3>Commit Mode</h3>
+<p>When writing a JDBC application, make sure you consider how often you are committing transactions. Every commit
+causes the driver to send packet requests over the socket.
+Additionally, the database performs the actual commit which
+usually entails disk I/O on the server. Consider removing autocommit
+mode for your application and using manual commit
+instead to better control commit logic:</p>
+
+<pre><code>
+Connection.setAutoCommit(false);
+</code>
+</pre>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Virtualization and Scalability are key factors to consider
+when choosing a JDBC driver. During the Performance
+Testing phase of your development cycle, ensure that your
+JDBC driver is using the least amount of CPU and Memory
+possible. You can get memory and CPU performance
+numbers from your driver vendor to see how the drivers
+will scale when deployed in a Cloud or other virtualized
+environment.
+</div>
+
+<h3>Network Traffic Reduction</h3>
+
+<p>Reduce network traffic by following these guidelines.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Technique</strong></td>
+		<td class="dark_blue"><strong>Benefit</strong></td>
+	</tr>
+	<tr>
+		<td class="dark_blue">Use addBatch() instead of using
+		PreparedStatements to insert.</td>
+		<td class="light_blue">Sends multiple insert requests in a single
+		network packet</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">Eliminate unused column data
+		from your SQL statements</td>
+		<td class="light_blue">Removing long data and LOBs from your
+		queries can save megabytes of wire transfer!</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">Ensure that your database is
+		set to the maximum packet size
+		and that the driver matches that
+		packet size</td>
+		<td class="light_blue">For fetching larger result sets, this reduces
+		the number of total packets sent/received
+		between the driver and server</td>
+	</tr>
+	
+</tbody></table>
+
+<h2>JDBC DATA TYPES</h2>
+
+<p>Below is a list of common JDBC types and their default
+mapping to Java types. For a complete list of data types,
+conversion rules, and mapping tables, see the JDBC
+conversion tables in the JDBC Specification or the Java SE API
+documentation.</p>
+
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>JDBC Types</strong></td>
+		<td class="dark_blue"><strong>Java Type</strong></td>
+	</tr>
+	<tr>
+		<td class="dark_blue">CHAR, VARCHAR,LONGVARCHAR</td>
+		<td class="light_blue">java.lang.String</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">CLOB</td>
+		<td class="light_blue">java.sql.Clob</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">NUMERIC, DECIMAL</td>
+		<td class="light_blue">java.math.BigDecimal</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">BIT, BOOLEAN</td>
+		<td class="light_blue">Boolean</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">BINARY, VARBINARY,LONGVARBINARY</td>
+		<td class="light_blue">byte[]</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">BLOB</td>
+		<td class="light_blue">java.sql.Blob</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">DATE</td>
+		<td class="light_blue">java.sql.Date</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">TIME</td>
+		<td class="light_blue">java.sql.Time</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">TIMESTAMP</td>
+		<td class="light_blue">java.sql.Timestamp</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">TINYINT</td>
+		<td class="light_blue">byte</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">SMALLINT</td>
+		<td class="light_blue">short</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">INTEGER</td>
+		<td class="light_blue">int</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">BIGINT</td>
+		<td class="light_blue">long</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">REAL</td>
+		<td class="light_blue">float</td>
+	</tr>
+	<tr>
+		<td class="dark_blue">FLOAT, DOUBLE</td>
+		<td class="light_blue">double</td>
+	</tr>
+	
+</tbody></table>
+
+<h2>WHAT’S IN A DRIVER?</h2>
+<p>To illustrate what a JDBC driver does under the covers, take a look at this ‘anatomy of a JDBC driver’ diagram.</p>
+
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-Diagram1.jpg" width="645" height="370" alt="Diagram1&quot;">
+   
+
+<h2>ADVANCED JDBC</h2>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+These advanced features are complex and meant as an
+overview. For all the bells and whistles for these advanced
+options, check your JDBC driver documentation!
+
+</div>
+
+<h3>Debugging and Logging</h3>
+
+<p>Well-written JDBC drivers offer ways to log the JDBC calls
+going through the driver for debugging purposes. As an
+example, to enable logging with some JDBC drivers, you
+simply set a connection option to turn on this spying capability:</p>
+
+<pre><code>
+Class.forName(“com.ddtek.jdbc.sqlserver.SQLServerDriver”);
+
+Connection conn = DriverManager.getConnection
+(“jdbc:datadirect:sqlserver://Server1:1433;User=TEST;Password=secret;
+SpyAttributes=(log=(file)C:\\temp\\spy.log;linelimit=80;logTName=yes;t
+imestamp=yes)”);
+</code>
+</pre>
+
+<h3>Codeless Configuration (Hibernate and JPA)</h3>
+<p>Codeless Configuration is the ability to change driver behavior
+without having to change application code. Using a driver
+under something like Hibernate or JPA means that the user
+cannot use proprietary extensions to the JDBC objects and
+should instead control and change driver behavior through
+connection options.</p>
+
+<p>Additionally, codeless configuration is the ability to monitor
+and change JDBC driver behavior while the driver is in use.
+For example, using a tool like JConsole to connect to a driver
+exported MBean and check the PreparedStatement pool stats as well as importing/exporting new statements on the fly to
+fine tune application performance.</p>
+
+<h3>Encrypt Your Data using SSL</h3>
+<p>Ensure that your data is secure by encrypting the wire traffic between the server and client using SSL encryption:</p>
+
+<ol>
+	<li>Set the EncryptionMethod connect option to SSL.</li>
+	<li>Specify the location and password of the trustStore file used for SSL server authentication. Set connect options or system properties (javax.net.ssl.trustStore and
+			javax.net.ssl.trustStorePassword).</li>
+	<li>If your database server is configured for SSL client authentication, configure your keyStore information:
+		<ul>
+			<li>Specify the location and password of the keyStore file. Either set connect options or Java system properties (javax.net.ssl.keyStore and javax.net.ssl.keyStorePassword).</li>
+			<li>If any key entry in the keyStore file is passwordprotected,set the KeyPassword property to thekey password.</li>
+		</ul>
+	
+	</li>
+</ol>
+
+<h3>Single Sign-on with Kerberos</h3>
+
+<p>Kerberos is an authentication protocol, which enables secure proof of identity over a non-secure network. It is also used for
+	enabling single sign-on across multiple sites by delegating credentials. To enable Kerberos:</p>
+
+<ol>
+	<li>Set the authenticationMethod connect option to Kerberos.</li>
+	<li>Modify the krb5.conf file to contain your Kerberos realm and the KDC name for that realm. Alternatively, you
+		can set the java.security.krb5.realm and java.security.krb5.kdc system properties.</li>
+	<li>If using Kerberos authentication with a Security Manager,grant security permissions to the application and driver.</li>
+	
+</ol>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+These security features are not supported by all databases and database versions. Check to ensure your database is
+setup appropriately before attempting Kerberos and SSL connections.
+</div>
+
+<h3>Application Failover</h3>
+
+<p>Application failover is the ability for a driver to detect a connection failure and seamlessly reconnect you to an alternate
+server. Various types of failover exist for JDBC drivers so check your driver documentation for support - the most common are
+listed below:</p>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="dark_blue"><strong>Connection Failover</strong></td>
+		<td class="light_blue">In the case of the primary connection being unavailable, the connection will be established with the alternate server.</td>
+	</tr>
+	<tr>
+		<td class="dark_blue"><strong>Extended Failover</strong></td>
+		<td class="light_blue">While the application is running, if a connection failover occurs, the driver will reconnect to an alternate server and post a transaction failure to the application.</td>
+	</tr>
+	<tr>
+		<td class="dark_blue"><strong>Select Failover</strong></td>
+		<td class="light_blue">Same as extended, except instead of posting a transaction failure, this level will reposition any ResultSets, so the application will not know there was a failure at all.</td>
+	</tr>
+</tbody></table>
+
+<h3>Bulk Loading</h3>
+
+<p>Loading large amounts of data into a database quickly requires something more powerful than standard addBatch(). Database
+vendors offer a way to bulk load data, bypassing the normal wire protocol and normal insert procedure. There are 2 ways to
+use Bulk Loading with a JDBC driver that supports it:</p>
+
+<ol>
+	<li>Set enableBulkLoad connect option to true. This will make addBatch() calls use the bulk load protocol over the wire.</li>
+	<li>Use a Bulk Load object:</li>	
+</ol>
+
+
+<pre><code>
+// Get Database Connection
+
+Connection con = DriverManager.getConnection(“jdbc:datadirect:orac
+le://server3:1521;ServiceName=ORCL;User=test;Password=secret”);
+
+// Get a DDBulkLoad object
+
+DDBulkLoad bulkLoad = DDBulkLoadFactory.getInstance(con);
+bulkLoad.setTableName(“GBMAXTABLE”);
+bulkLoad.load(“tmp.csv”);
+
+// Alternatively, you can load from any ResultSet object into the
+target table:
+
+bulkLoad.load(results);
+</code>
+</pre>
+
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+For additional Bulk Load options, check the JDBC driver documentation.
+</div>
+
+<h2>SQL QUICK REFERENCE</h2>
+
+<h3>Basic Syntax Examples</h3>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>SQL Construct</strong></td>
+		<td class="dark_blue"><strong>Example</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">SELECT statement</td>
+		<td class="">SELECT * from table1<br>SELECT (col1,col2,…) from table1</td>
+	</tr>
+	<tr>
+		<td class="light_blue">WHERE clause</td>
+		<td class="">SELECT (col1, col2, col3)<br>FROM table1 WHERE col1 = ‘foo’</td>
+	</tr>
+	<tr>
+		<td class="light_blue">ORDER BY clause</td>
+		<td class="">SELECT (col1,col2,…)<br>FROM table_name<br>ORDER BY column_name [ASC|DESC]</td>
+	</tr>
+	<tr>
+		<td class="light_blue">GROUP BY clause</td>
+		<td class="">SELECT column_name, aggregate_<br>function(column_name)<br>FROM table_name<br>WHERE column_name operator value<br>GROUP BY column_name</td>
+	</tr>
+	<tr>
+		<td class="light_blue">INSERT statement<br>(all columns implicit)</td>
+		<td class="">INSERT INTO table1<br>VALUES (val1, val2, value3,…)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">(explicit columns)</td>
+		<td class="">INSERT INTO table2<br>(col1,col2,…)<br>VALUES (val1, val2, value3,…)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">UPDATE statement</td>
+		<td class="">UPDATE table1<br>SET col1=val1, col2=val2,…<br>WHERE col3=some_val</td>
+	</tr>
+	<tr>
+		<td class="light_blue">DELETE statement</td>
+		<td class="">DELETE FROM table1<br>WHERE col2=some_val</td>
+	</tr>
+	
+</tbody></table>
+
+<h3>Escape Clauses</h3>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Escape Type</strong></td>
+		<td class="dark_blue"><strong>Example</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Call (a.k.a. stored procedure</td>
+		<td class="">{call statement}<br>{call getBookValues (?,?)}</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Function</td>
+		<td class="">{fn functionCall}<br>SELECT {fn UCASE(Name)} FROM Employee</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Outer Join</td>
+		<td class="">{oj outer-join}<br>
+			where outer-join is<br>
+			table-reference {LEFT | RIGHT | FULL}<br>
+			OUTER JOIN<br>
+			{table-reference | outer-join} ON<br>
+			search-condition<br>
+			SELECT Customers.CustID, Customers.<br>
+			Name, Orders.OrderID, Orders.Status<br>
+			FROM {oj Customers LEFT OUTER JOIN<br>
+			Orders ON Customers.CustID=Orders.<br>
+			CustID} WHERE Orders.Status=’OPEN’</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Date Escape</td>
+		<td class="">{d yyy-mm-dd}<br>UPDATE Orders SET OpenDate={d ‘2005-<br>01-31’} WHERE OrderID=1025</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Time Escape</td>
+		<td class="">{t hh:mm:ss}<br>UPDATE Orders SET OrderTime={t<br>‘12:30:45’} WHERE OrderID=1025</td>
+	</tr>
+	<tr>
+		<td class="light_blue">TimeStamp Escape</td>
+		<td class="">{ts yyyy-mm-dd hh:mm:ss[.f...]}<br>UPDATE Orders SET shipTS={ts ‘2005-02-<br>05 12:30:45’} WHERE OrderID=1025</td>
+	</tr>
+	
+	
+	
+</tbody></table>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+To get a listing of the functions supported by a given JDBC
+driver, use the getter methods on the DatabaseMetaData
+object: getStringFunctions(), getNumericFunctions(),
+getTimeDateFunctions(), etc.
+</div>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>WildCard</strong></td>
+		<td class="dark_blue"><strong>Description and Example</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">% (percent)</td>
+		<td class="">Subsititute for zero or more characters.<br>SELECT * from emp where name like ‘Da%’</td>
+	</tr>
+	<tr>
+		<td class="light_blue">_ (underscore)</td>
+		<td class="">Substitute for exactly one character.<br>SELECT * from books where title like ‘_at in the Hat’</td>
+	</tr>
+	<tr>
+		<td class="light_blue">[charlist]</td>
+		<td class="">Any single character in the charlist.<br>Select * from animals where name like ‘[cb]at’</td>
+	</tr>
+	<tr>
+		<td class="light_blue">[!charlist]<br>-or-<br>[^charlist]</td>
+		<td class="">Any single character not in the charlist.<br>Select * from animals where name like ‘[!cb]at’<br>Select * from animals where name like ‘[^cb]at’</td>
+	</tr>
+	
+</tbody></table>
+
+<h2>JDBC WITH HIBERNATE</h2>
+
+<p>Hibernate is one of the most popular Object Relational Mapping (ORM) frameworks used with JDBC. It is important to note that even if you choose to use Hibernate instead of writing pure JDBC, Hibernate must use a JDBC driver to get to data! Therefore, Hibernate does not replace JDBC as the data connectivity layer, it merely sits on top of it to interface with the application:</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-Hibernate.jpg" width="261" height="276" alt="Hibernate&quot;">
+  
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+When choosing a driver to use with Hibernate, ensure your driver supports Codeless Configuration so that you can tune performance and change driver behavior without having to modify the Hibernate code!
+</div>
+
+
+<p>When writing Hibernate applications it is important to understand the main files used to setup a Hibernate environment:</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Hibernate File</strong></td>
+		<td class="dark_blue"><strong>Purpose</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Dialects (org.hibernate.dialect.*)</td>
+		<td class="">Describes the SQL behavior of the JDBC driver and database to which the application is connecting.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Configuration File (hibernate.properties or hibernate.cfg.xml)</td>
+		<td class="">Contains the hibernate configuration settings, such as: JDBC driver and connection information, dialect information, mapping information, etc.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Mapping File</td>
+		<td class="">The mapping file contains the mapping between the application defined objects and the relational data stored in the database.</td>
+	</tr>
+</tbody></table>
+
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/101/../images/hot_tip.jpg" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Not all JDBC drivers are created equal! Look for a set of JDBC drivers that can use a single dialect to connect to multiple versions of a database. There’s nothing worse than deploying your application with an Oracle 8 dialect and discover that you need to redeploy with an
+Oracle 10 dialect!
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div id="author_bio_book">
+<div id="author_bio">
+        <h3>About The Authors</h3>
+        <p><img src="/sites/all/modules/dzone/assets/refcardz/101/images/author.jpg" width="120" height="180" alt="Photo of author Jesse Davis"></p>
+		<h4>Jesse Davis</h4>
+        <p>Jesse Davis watched his Dad code on his Apple IIC Plus, and his addiction to technology began. He used his first PC (a Packard Bell) in high school to run Slackware Linux and began writing shell scripts and simple C applications. Honing his skills as a Computer Engineer at North Carolina State University, Jesse loved the challenge of combining hardware and software and concentrated on microprocessor architecture and design - graduating with honors in Y2K. Today, he enjoys teaching others about the latest technological breakthroughs and enjoys building robots and woodworking projects with his kids. During the day, he is the Senior Engineering Manager for the Progress|DataDirect Connect product line, and has more than 12 years of experience developing database middleware, including JDBC and ODBC drivers, ADO.NET providers, and data services. Jesse is responsible for product development initiatives and forward looking research, and is an active member of the JDBC Expert Group, working on the next version of JDBC.<br>
+</p><h3>Blog: <a href="http://blogs.datadirect.com/">http://blogs.datadirect.com/</a><br>
+Twitter: <a href="@jldavis007">@jldavis007</a></h3><p></p>
+</div>
+
+    <div id="suggested_book">
+        <h3>Recommended Book</h3>
+        <img src="/sites/all/modules/dzone/assets/refcardz/101/images/rc101-010d-TheDataAccessHandbook.jpg" width="137" height="180" alt="The Data Access Handbook" id="recommended_book_cover">
+        <p>
+           Performance and scalability are more critical than ever in today’s enterprise database applications, and traditional database tuning isn’t nearly enough to solve the performance problems you are likely to see in those applications. Nowadays, 75-95% of the time it takes to process a data request is typically spent in the database middleware. Today’s worst performance and scalability problems are generally caused by issues with networking, database drivers, the broader software/hardware environment, and inefficient coding of data requests. In The Data Access Handbook, two of the world’s leading experts on database access systematically address these issues, showing how to achieve remarkable improvements in performance of real-world database applications.</p>
+        <hr>
+        <div id="purchase">
+            <p id="buy_book">
+                BUY NOW
+            </p>
+            <p>
+                <a href="http://books.dzone.com/books/data-access-handbook" title="Buy the book now.">books.dzone.com/books/data-access-handbook</a>
+            </p>
+        </div>
+    </div>
+</div>

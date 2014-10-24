@@ -1,0 +1,1074 @@
+ <meta charset="gbk">
+        <title>Core ASP.NET</title>
+        
+		<script type="text/javascript">
+            var uagent = navigator.userAgent.toLowerCase();           
+            if (uagent.search("android") > -1) {
+              document.write('<link rel="stylesheet" href="../css/refcardz_html_android.css" type="text/css" media="screen">');
+            }
+        </script>
+		
+		<base href="http://refcardz.dzone.com/" />
+    
+<h1>Core <span id="main_topic">ASP.NET</span></h1>
+<p class="author_name">
+  By Holger Schwichtenberg
+</p>
+<h2>ABOUT ASP.NEt</h2>
+
+<p>ASP.NET stands for “Active Server Pages .NET”, however
+the full name is rarely used. ASP.NET is a framework for the
+development of dynamic websites and web services. It is based
+on the Microsoft .NET Framework and has been part of .NET
+since Version 1.0 was released in January 2002. The current
+version named 3.5 Service Pack 1 was released in August 2008.
+The next version, 4.0, is expected to be released at the end of
+the year 2009.</p>
+<p>This Refcard summarizes the most commonly used core functions
+of ASP.NET. You will find this Refcard useful for some of
+the most common tasks with ASP.NET, regardless of the version
+you are using</p>
+
+<h2>Instalation</h2>
+
+<p>The best development environment for ASP.NET is Microsoft’s
+Visual Studio. You can either use the free Visual Web
+Developer Express Edition <a href="(http://www.microsoft.com/express/
+vwd/">(http://www.microsoft.com/express/
+vwd/</a>) or any of the commercial editions of Visual Studio (e.g.
+Visual Studio Professional). The latest version that supports
+ASP.NET 2.0 and ASP.NET 3.5 is “2008” (internal version:
+9.0). The .NET Framework and ASP.NET are part of the setup
+of Visual Web Developer Express Edition and Visual Studio.
+However, make sure you install Service Pack 1 for Visual Studio
+2008, as this will not only fix some bugs but also add a lot of
+new features.</p>
+
+<p>ASP.NET needs a server with the HTTP protocol (web server)
+to run. Visual Web Developer Express 2005/2008 and Visual
+Studio 2005/2008 contain a webserver for local use on your
+development machine. The “ASP.NET Development Server”
+(ADS) will be used when specifying a “File System” location
+when creating your project. Thus, “HTTP” would mean you
+address a local or remote instance of Internet Information
+Server (IIS) or any other ASP.NET enabled web server. ADS
+is a lightweight server that cannot be reached from other
+systems. However, there are differences between ADS and
+IIS, especially in the security model that makes it sometimes
+hard for beginners to deploy a website to the IIS that was
+developed with ADS. On the production system you will use IIS
+and only install the .NET Framework, because Visual Studio is
+not required here.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+If you choose to use Internet Information Server (IIS),
+install the IIS on your machine before installing the
+.NET Framework or Visual Studio. If you did not follow
+this installation order, you may use aspnet_regiis.
+exe to properly register ASP.NET within the IIS.
+</div>
+
+<h2>ASP.NEt Web Applications</h2>
+
+<p>An ASP.NET application consists of several .aspx files. An
+.aspx file can contain HTML markup and special ASP.NET
+markup (called Web Controls) as well as the code (Single Page
+Model). However, the Code Behind Model which comes with
+a separate code file called, the “Code Behind File” (.aspx.
+cs or .aspx.vb), provides a cleaner architecture and better
+collaboration between Web designers and Web developers.
+ASP.NET applications may contain several other elements
+such as configuration files (maximum one per folder), a global
+application file (only one per web application), web services,
+data files, media files and additional code files.</p>
+<p>There are two types of Web projects: “Website Projects” (File/
+New/Web Site) and “Web Application Projects” (File/New/
+Project/Web Application). “Website” is the newer model,
+while Web Application Projects mainly exist for compatibility
+with Visual Studio .NET 2002 and 2003. This Refcard will only
+cover Web Site Projects. Most of this content is also valid for
+Web Applications.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+A well designed ASP.NET application distinguishes
+itself by having as little code in the Code Behind
+files and other code files as possible. The large
+majority of your code should be in referenced
+Assemblies (DLLs) as they are reusable in other
+Web applications. If you don’t want to put your code
+into a separate assembly, you at least should use
+separate classes in the “App_Code” folder within your
+web project.
+</div>
+
+<img src="/sites/all/modules/dzone/assets/refcardz/046/images/rc046-010d-Figure1.jpg" width="454" height="324" alt="Figure 1">
+
+<p><small><strong>Figure 1:</strong> The Content of an ASP.NET Web Application</small></p> 
+
+<h2>The ASP.NET Web form Model</h2>
+<p>ASP.NET uses an object- and event-oriented model for web
+pages. The ASP.NET Page Framework analyzes all incoming
+requests as well as the .aspx page that the request is aimed
+at. The Page Framework creates an object model (alias control
+tree) based on this information and also fires a series of events.
+Event handlers in your code can access data, call external
+code in referenced .NET assemblies and manipulate the object
+model (e.g. fill a listbox or change the color of a textbox). After
+all event handlers have executed, the Page Framework renders
+the current state of the object model into HTML tags with
+optional CSS formatting, JavaScript code and state information
+(e.g. hidden fields or cookies). After interacting with the page,
+the user can issue a new request by clicking a button or a link
+that will restart the whole process.</p>
+<img src="/sites/all/modules/dzone/assets/refcardz/046/images/rc046-010d-Figure2.jpg" width="453" height="219" alt="Figure 2">
+
+<p><small><strong>Figure 2:</strong> The ASP.NET request/response life cycle</small></p>
+<h2>Web Controls</h2>
+<p>An ASP.NET page can contain common HTML markup.
+However, only ASP.NET web controls provide full objectand
+event-based functionality. Web controls have two
+representations: In the .aspx files they are tags with the prefix
+“asp:”, e.g. <asp:textbox>. In the code they are .NET classes,
+e.g. System.Web.UI.WebControls.TextBox.</asp:textbox></p>
+
+<p>Table 1 lists the core members of all web controls that are
+implemented in the base class “System.Web.UI.WebControls.
+WebControl”.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Name of Member</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Id</td>
+		<td class="light_cream">Unique identifier for a control within a page</td>
+	</tr>
+	<tr>
+		<td class="light_blue">ClientID</td>
+		<td class="light_cream">Gets the unique identifier that ASP.NET generates if more
+			than one control on the page has the same (String) ID.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page</td>
+		<td class="light_cream">Pointer to the page where the control lives</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Parent</td>
+		<td class="light_cream">Pointer to the parent control, may be the same as “Page”</td>
+	</tr>
+	<tr>
+		<td class="light_blue">HasControls()</td>
+		<td class="light_cream">True, if the control has sub-controls</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Controls</td>
+		<td class="light_cream">Collection of sub-controls</td>
+	</tr>
+	<tr>
+		<td class="light_blue">FindControl(“NAME”)</td>
+		<td class="light_cream">Finds a sub-control within the Controls collection by its ID</td>
+	</tr>
+	<tr>
+		<td class="light_blue">BackColor, BorderColor,<br>
+		Borderstyle, BorderWidth,<br>
+		Font, ForeColor, Height,<br>
+		Width, ToolTip, TabIndex</td>
+		<td class="light_cream">Self-explaining properties for the formatting of the control.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">CssClas</td>
+		<td class="light_cream">The name of CSS class that is used for formatting the control</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Style</td>
+		<td class="light_cream">A collection of single CSS styles, if you don’t want to use a
+			CSS class or override behavior in a CSS class</td>
+	</tr>
+	<tr>
+		<td class="light_blue">EnableViewState</td>
+		<td class="light_cream">Disables page-scoped state management for this control</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Visible</td>
+		<td class="light_cream">Disables rendering of the control</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Enabled</td>
+		<td class="light_cream">Set to false if you want the control to be disabled in the browser</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Focus()</td>
+		<td class="light_cream">Set the focus to this control</td>
+	</tr>
+	<tr>
+		<td class="light_blue">DataBind()</td>
+		<td class="light_cream">Gets the data (if the control is bound to a data source)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Init()</td>
+		<td class="light_cream">Fires during initializtion of the page. Last chance to change
+		basic setting e.g. the culture of the current thread that
+		determines the behavior used for rendering the page.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Load()</td>
+		<td class="light_cream">Fires during the loading of the page. Last to change to do any preparations./td&gt;
+	</td></tr>
+	<tr>
+		<td class="light_blue">PreRender()</td>
+		<td class="light_cream">Fires after all user defined event handlers have completed<br>
+		and right before rendering of the page starts. Your last<br>
+		chance to make any changes to the controls on the page!</td>
+	</tr>
+	<tr>
+		<td class="light_blue">UnLoad()</td>
+		<td class="light_cream">Event fires during the unloading of a page.</td>
+	</tr>
+</tbody></table>
+
+<p><small><strong>Table 1:</strong> Core Members in the base class system. Web.UI.WebControls.WebControl.</small></p>
+<p>Tables 2, 3 and 4 list the most commonly used controls for ASP.
+NET web pages. However, there are more controls included
+in the .NET platform and many more from third parties not
+mentioned here.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Control</strong></td>
+		<td class="dark_cream"><strong>Purpose/strong&gt;</strong></td>
+		<td class="dark_blue"><strong>Important specific members in<br>
+		addition to the members inheritedn<br>
+		from WebControl</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Label&gt;</td>
+		<td class="light_cream">Static Text</td>
+		<td class="light_blue">Text</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:TextBox&gt;</td>
+		<td class="light_cream">Edit Text (single line,<br>
+		multiline or password)</td>
+		<td class="light_blue">TextMode, Text, TextChanged()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:FileUpload&gt;</td>
+		<td class="light_cream">Choose a file for upload</td>
+		<td class="light_blue">FileName, FileContent, FileBytes,SaveAs()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Button&gt;</td>
+		<td class="light_cream">Display a clasic button</td>
+		<td class="light_blue">Click(), CommdName, Command()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:ImageButton&gt;</td>
+		<td class="light_cream">Display a clickable image</td>
+		<td class="light_blue">Click(), CommdName, Command()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:LinkButton&gt;</td>
+		<td class="light_cream">Display a hyperlink that works like a button</td>
+		<td class="light_blue">ImageUrl, ImageAlign, Click(),<br>
+			CommdName, Command()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:CheckBox&gt;</td>
+		<td class="light_cream">Choose an option</td>
+		<td class="light_blue">Text, Checked, CheckedChanged()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:RadioButton&gt;</td>
+		<td class="light_cream">Choose an option</td>
+		<td class="light_blue">Text, Checked, CheckedChanged()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:HyperLink&gt;</td>
+		<td class="light_cream">Display a hyperlink</td>
+		<td class="light_blue">NavigateURL, Target, Text</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Image&gt;</td>
+		<td class="light_cream">Display an image</td>
+		<td class="light_blue">ImageURL, ImageAlign</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:ImageMap&gt;</td>
+		<td class="light_cream">Display a clickable<br>
+		image with different<br>
+		regions</td>
+		<td class="light_blue">ImageURL, ImageAlign,</td>
+	</tr>
+</tbody></table>
+
+<p><small><strong>Table 2:</strong> Core controls for ASP.NET web pages.</small></p>
+<p>List controls display several items that the user can choose
+from. The selectable items are declared static in the .aspx
+file or created manually using the Items collection or created
+automatically by using data binding. For data binding you can
+fill DataSource with any enumerable collection of .NET objects.
+DataTextField and DataValueField specify which properties of
+the objects in the collection are used for the list control.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+If you bind a collection of primitive types such as
+strings or numbers, just leave DataTextField and
+DataValueField empty.
+</div>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Setting AppendDataBoundItems to true will add the
+databound items to the static items declared in the
+.aspx file. This will allow the user to select values that
+don’t exist in the data source such as the values “All”
+or “None”
+</div>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Control</strong></td>
+		<td class="dark_cream"><strong>Purpose</strong></td>
+		<td class="dark_blue"><strong>Important specific members in<br>
+		addition to the members inherited<br>
+		from WebControl</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Drop DownList&gt;</td>
+		<td class="light_cream">Allows the user to select<br>
+		a single item from a<br>
+		drop-down list</td>
+		<td class="light_blue">Items.Add(), Items.<br>
+		Remove(), DataSource,,<br>
+		DataTextField, DataValueField,<br>
+		AppendDataBoundItems,<br>
+		SelectedIndez, SelectedItem,<br>
+		SelectedValue, SelectedIndexChanged()</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:ListBox&gt;</td>
+		<td class="light_cream">Single or multiple selection box</td>
+		<td class="light_blue">Items.Add(), Items.<br>
+		Remove(), DataSource,,<br>
+		DataTextField, DataValueField,<br>
+		AppendDataBoundItems,<br>
+		SelectedIndez, SelectedItem,<br>
+		SelectedValue, SelectedIndexChanged(),<br>
+		Rows, SelectionMode</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Check BoxList&gt;</td>
+		<td class="light_cream">Multi selection check box group</td>
+		<td class="light_blue">Items.Add(), Items.<br>
+		Remove(), DataSource,,<br>
+		DataTextField, DataValueField,<br>
+		AppendDataBoundItems,<br>
+		SelectedIndez, SelectedItem,<br>
+		SelectedValue, SelectedIndexChanged(),<br>
+		RepeatLayout, RepeatDirection</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Radio ButtonList&gt;</td>
+		<td class="light_cream">Single selection radio button group</td>
+		<td class="light_blue">Items.Add(), Items.<br>
+		Remove(), DataSource,,<br>
+		DataTextField, DataValueField,<br>
+		AppendDataBoundItems,<br>
+		SelectedIndez, SelectedItem,<br>
+		SelectedValue, SelectedIndexChanged(),<br>
+		RepeatLayout, RepeatDirection</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Bulleted List&gt;</td>
+		<td class="light_cream">List of items in a bulleted format</td>
+		<td class="light_blue">Items.Add(), Items.<br>
+		Remove(), DataSource,,<br>
+		DataTextField, DataValueField,<br>
+		AppendDataBoundItems,<br>
+		SelectedIndez, SelectedItem,<br>
+		SelectedValue, SelectedIndexChanged(),<br>
+		BulletImageUrl, BulletStyle</td>
+	</tr>
+	
+</tbody></table>
+
+<p><small><strong>Table 3:</strong> List Controls for ASP.NET web pages</small></p>
+
+<p>Validation Controls check user input. They always refer to
+one input control ControlToValidate and display a text
+ErrorMessage if the validation fails. They perform the checks in
+the browser using JavaScript and also on the server. The client
+side validation can be disabled by setting EnableClientScript
+to false. However, the server side validation cannot be
+disabled for security reasons.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Control</strong></td>
+		<td class="dark_cream"><strong>Purpose</strong></td>
+		<td class="dark_blue"><strong>Important specific members<br>
+		in addition to the members<br>
+		inherited from WebControl</strong></td>
+			</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Required<br>
+		FieldValidator&gt;</td>
+		<td class="light_cream">Checks if a user changed the<br>
+		initial value of an input control</td>
+		<td class="light_blue">ControlToValidate, ErrorMessage,<br>
+		Display, EnableClientScript,<br>
+		IsValid, InitialValue</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Compare<br>
+		Validator&gt;</td>
+		<td class="light_cream">Compares the value entered by<br>
+		the user in an input control with<br>
+		the value entered in another<br>
+		input control, or with a constant<br>
+		value</td>
+		<td class="light_blue">ControlToValidate, ErrorMessage,<br>
+		Display, EnablesClientScript,<br>
+		IsValid, ValueToCompare, Type,<br>
+		ControlToCompare</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Range<br>
+		Validator&gt;</td>
+		<td class="light_cream">Checks whether the value of<br>
+		an input control is within a<br>
+		specified range of values</td>
+		<td class="light_blue">ControlToValidate, ErrorMessage,<br>
+		Display, EnableClientScript,<br>
+		IsValid, MinimumValue,<br>
+		MaximumValue, Type</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Regular<br>
+		Expression
+		Validator&gt;</td>
+		<td class="light_cream">Checks if the user input<br>
+		matches a given regular</td>
+		<td class="light_blue">ControlToValidate, ErrorMessage,<br>
+		Display, EnavleClientScript,<br>
+		IsValid, ValidationExpression</td>
+	</tr>
+	<tr>
+		<td class="light_blue">&lt;asp:Custom<br>
+		Validator&gt;</td>
+		<td class="light_cream">Performs custom checks on the<br>
+		server and optional also on the<br>
+		client using JavaScript</td>
+		<td class="light_blue">ControlTValidate, ErrorMessage,<br>
+		Display, EnableClientScript,<br>
+		IsValid, ValidateEmptyText,<br>
+		Client ValidationFunction,<br>
+		ServerValidate()</td>
+	</tr>
+</tbody></table>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+For the CustomValidator you can optionally write
+a JavaScript function that performs client side validation.
+The function has to look like this:
+&lt;script type=”text/javascript”&gt;
+function ClientValidate(source, args)
+{
+if (x &gt; 0) // Any condition
+{ args.IsValid=true; }
+else
+{ args.IsValid=false; }
+}
+&lt;/script&gt;
+</div>
+
+<h2>The Page Class</h2>
+<p>All web pages in ASP.NET are .NET classes that inherit from
+the base class “System.Web.UI.Page”. The class Page has
+associations to several other objects such as Server, Request,
+Response, Application, Session and ViewState (see figure
+3). Therefore, developers have access to a wide array of
+properties, methods and events within their code. Table 5 lists
+the most important members of a Page and its dependent
+classes. Please note that the Page class has the class Control in
+its inheritance hierarchy and therefore shares a lot of members
+with the WebControl class (e.g. Init(), Load(), Controls,
+FindControl). However, these members are not repeated here.</p>
+
+<img src="/sites/all/modules/dzone/assets/refcardz/046/images/rc046-010d-Figure3.jpg" width="400" height="297" alt="Figure 3">
+
+<p><small><strong>Figure 3:</strong> Object Model of “System.Web.UI.Page”</small></p> 
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Member</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page Title</td>
+		<td class="light_cream">Title string of the Page</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.IsPostBack</td>
+		<td class="light_cream">True, if page is being loaded in response to a client postback. False if it is being loaded for the first time.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.IsAsync</td>
+		<td class="light_cream">True, if the page is loaded in an asynchronous request (i.e. AJAX request)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.IsValid</td>
+		<td class="light_cream">True, if all validation server controls in the current validation group validated successfully</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.Master</td>
+		<td class="light_cream">Returns the MasterPage object associated with this page</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.PreviousPage</td>
+		<td class="light_cream">Gets the page that transferred control to the current page (only available if using Server.Transfer, not available with Response. Redirect)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Page.SetFocus(Control ControlID)</td>
+		<td class="light_cream">Sets the browser focus to the specified control (using JavaScript)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Trace.Write</td>
+		<td class="light_cream">Writes trace information to the trace log.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">User.Identity.IsAuthenticated</td>
+		<td class="light_cream">True, if the user has been authenticated.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">User.Identity.AuthenticationType</td>
+		<td class="light_cream">Type of Authentication used (Basic, NTLM, Kerberos, etc)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">User.Identity.Name</td>
+		<td class="light_cream">Name of the current user</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.MachineName</td>
+		<td class="light_cream">Name of the computer the web server is running on</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.GetLastError()</td>
+		<td class="light_cream">Gets the Exception object for the last exception</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.HtmlEncode(Text)</td>
+		<td class="light_cream">Applies HTML encoding to a string</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.UrlEncode(Pah)</td>
+		<td class="light_cream">Applies URL encoding to a string</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.MapPath(Path)</td>
+		<td class="light_cream">Maps the given relative path to an absolute path on the web server</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Server.Transfer(Path)</td>
+		<td class="light_cream">Stops the execution of the current page and starts executing the given page as part of the current HTTP request</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.AcceptTypes</td>
+		<td class="light_cream">String array of cliet-supported MIME accept types.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Browser</td>
+		<td class="light_cream">Provides information about the browser</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.ClientCertificate</td>
+		<td class="light_cream">Provides the certificate of the client, if SSL client authentication is used</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Cookies</td>
+		<td class="light_cream">The list of cookies that the browser sent to the web server</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Form</td>
+		<td class="light_cream">The name and value of the input fields the browser sent to the web server</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Headers</td>
+		<td class="light_cream">Data from the HTTP header the browser sent to the web server</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.IsAuthenticated</td>
+		<td class="light_cream">True, if the user is authenticated</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.IsSecureConnection</td>
+		<td class="light_cream">True, if SSL is used</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Path</td>
+		<td class="light_cream">Virtual path of the HTTP request (without server name)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.QueryString</td>
+		<td class="light_cream">Name/Value pairs the browser sent as part of the URL</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.ServerVariables</td>
+		<td class="light_cream">Complete list of name/value pairs with information about the server and the current request</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.Url</td>
+		<td class="light_cream">Complete URL of the request</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.UrlReferrer</td>
+		<td class="light_cream">Refering URL of the request (Previous page, the browser visited)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.UserAgent</td>
+		<td class="light_cream">Browser identification</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.UserHostAddress</td>
+		<td class="light_cream">IP address of the client</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Request.UserLanguages</td>
+		<td class="light_cream">Preferred languages of the user (determined by browser settings)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.BinaryWrite(bytes)</td>
+		<td class="light_cream">Writes information to an HTTP response output stream.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.Write(string)</td>
+		<td class="light_cream">Writes information to an HTTP response output stream.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.WriteFile(string)</td>
+		<td class="light_cream">Writes the specified file directly to an HTTP response output stream.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.BufferOutput</td>
+		<td class="light_cream">True if the output to client is buffered</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.Cookies</td>
+		<td class="light_cream">Collection of cookies that shall be sent to the browser</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.Redirect(Path)</td>
+		<td class="light_cream">Redirects a client to a new URL using the HTTP status code 302</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Response.StatusCode</td>
+		<td class="light_cream">HTTP status code (integer) of the output returned to the client</td>
+	</tr><tr>
+		<td class="light_blue">Response.StatusDescription</td>
+		<td class="light_cream">HTTP status string of the output returned to the client</td>
+	</tr>
+	
+	<tr>
+		<td class="light_blue">Session.SessionID</td>
+		<td class="light_cream">Unique identifier for the current session (a session is user specific)</td>
+	</tr><tr>
+		<td class="light_blue">Session.Item</td>
+		<td class="light_cream">Gets or sets individual session values.</td>
+	</tr><tr>
+		<td class="light_blue">Session.IsCookieless</td>
+		<td class="light_cream">True, if the ID for the current sessions are embedded in the URL. False, if its stored in an HTTP cookie</td>
+	</tr><tr>
+		<td class="light_blue">ViewState.Item</td>
+		<td class="light_cream">Gets or sets the value of an item stored in the ViewState, which is a hidden field used for state management witin a page</td>
+	</tr><tr>
+		<td class="light_blue">Application.Item</td>
+		<td class="light_cream">Gets or sets the value of an item stored in the application state, which is an applicationscope state management facility</td>
+	</tr>
+</tbody></table>
+
+<p><small><strong>Table 5:</strong> Most important members of the Page class and its associated classes</small></p>
+
+<h2>A Typical Page</h2>
+
+<p>Figure 4 shows the typical content of an .aspx page and Figure
+5 the content of a typical code behind class. The sample used
+is a registration form with three fields: Name, Job Title and
+Email Address.</p>
+
+
+<pre><code>
+&lt;%@ Page Language=”C#” AutoEventWireup=”true”
+  CodeFile=”PageName.aspx.cs” Inherits=”PageName” %&gt;
+&lt;!DOCTYPE html PUBLIC “-//W3C//DTD XHTML 1.0 Transitional//en”
+  “http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd”&gt;
+&lt;html xmlns=”http://www.w3.org/1999/xhtml”&gt;
+&lt;head runat=”server”&gt;
+  &lt;title&gt;Registration Page&lt;/title&gt;
+  &lt;link href=”MyStyles.css” rel=”stylesheet” type=”text/css”/&gt;
+  &lt;style type=”text/css”&gt;
+   .Headline
+   {
+    font-size: large; font-weight: bold;
+   }
+  &lt;/style&gt;
+ &lt;/head&gt;
+ &lt;body&gt;
+  &lt;form id=”c_Form” ruanat=”server”&gt;
+  &lt;div&gt;
+   &lt;asp:Label runat=”server” ID=”C_Headline” Text=”Please register:”
+     class=”Headline”&gt;&lt;/asp:label&gt;
+    &lt;p&gt;Name:
+   &lt;asp:TextBox ID=”C_Name” runat=”server”&gt;&lt;/asp:TextBox&gt;
+   &lt;asp:RequiredFieldValidator ID=”C_NameVal” ControlToValidate=”C_
+   Name” ruanat=”server” ErrorMessage=”Name required”&gt;&lt;/
+   asp:RequiredFieldValidator&gt;
+ &lt;/p&gt;
+    &lt;p&gt;Job Title:
+   &lt;asp:DropDownList ID=”C_JobTitle” runat=”server”&gt;
+  &lt;asp:ListItem Text=”Software Developer” Value=”SD”&gt;&lt;/
+ asp:ListItem&gt;
+  &lt;asp:ListItem Text=”Software Architect” Value=”SA”&gt;&lt;/
+   asp:ListItem&gt;
+  &lt;/asp:DropDownList&gt;
+ &lt;/p&gt;
+&lt;p&gt;EMail:
+  &lt;asp:TextBox ID=”C_EMail” runat=”server”&gt;&lt;/asp:TextBox&gt;
+   &lt;asp:RequiredFieldValidator Id=”C_EMailVal1” ControlToValidate=”C_
+  EMail” runat=”server” ErrorMessage=”EMail required”&gt;&lt;/
+  asp:RequiredFieldValidator&gt;
+  &lt;asp:RegularExpressionValidator ID=”C_EMailVal2”
+ ControlToValidate=”C_EMail” runat=”server” ErrorMessage=”Email
+   not valid” ValidationExpression=”\w+([-+.’]\w+)*@\w+([-.]\
+     w+)*\.\w+([-.]\w+)*”&gt;
+   &lt;/asp:RegularExpressionValidator&gt;
+   &lt;/p&gt;
+   &lt;p&gt;
+  &lt;asp:Button ID=”C_register” runat=”server” Text=”Register”
+ onclick=”C_Register_Click”/&gt;
+   &lt;/p&gt;
+   &lt;/div&gt;
+ &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code>
+</pre>
+
+<p><small><strong>Figure 4:</strong> Typical content of an ASPX file</small></p>
+
+<pre><code>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+public partial class PageName : System.Web.UI.Page
+ {
+  protected void Page_Load(object sender, EventArgs e)
+   {
+    // If an authenticated users starts using this page,
+    // use his login name in the name textbox
+    if (!Page.IsPostBack &amp;&amp; Page.User.Identity.IsAuthenticated)
+    {
+     this.C_Name.Text = Page.User.Identity.Name;
+     this.C_Name.Enabled = false;
+    }
+   }
+ protected void C_Register_Click(object sender, EventArgs e)
+  {
+   if (Page.IsValid) // if all validation controls succedded
+   { // call business logic and
+    if (BL.Register(this.C_Name.Text, this.C_EMail.Text, this.C_
+     JobTitle.SelectedValue))
+    { // redirect to confirmation page
+     Response.Redirect(“RegistrationConfirmation.aspx”);
+    }
+    else
+    { // change the headline
+     this.C_Headline. = “You are already registered!”;
+    }
+   }
+  }
+}    
+</code>
+</pre>
+
+<p><small><strong>Figure 5:</strong> Typical content of a Code Behind file</small></p>
+
+<h2>State Management</h2>
+<p>State management is a big issue in web applications as the
+HTTP protocol itself is stateless. There are three standard
+options for state management: hidden files, URL parameters
+and cookies. However, ASP.NET has some integrated
+abstractions from these base mechanisms know as View State,
+Session State, and Application State. Also, the direct use of
+cookies is supported in ASP.NET.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Disabling the View State (EnableViewState=false in
+a control) will significantly reduce the size of the
+page sent to the browser. However, you will have to
+take care of the state management of the controls
+with disabled View State on your own. Some complex
+controls will suffer the loss of functionality without
+View State.
+</div>
+
+<p>The following code snippet shows how to set values for a
+counter stored in each of these mechanisms:</p>
+
+<pre><code>
+ViewState[“Counter”] = CurrentCounter_Page + 1;
+Session[“Counter”] = CurrentCounter_Session + 1;
+Application[“Counter”] = CurrentCounter_Application + 1;
+Response.Cookies[“Counter”].Value = (CurrentCounter_User +
+  1).ToString();
+Response.Cookies[“Counter”].Expires = DateTime.MaxValue; // no
+  expiration
+</code>
+</pre>
+
+<p><small><strong>Figure 6:</strong> Setting Values</small></p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+When reading value from these objects, you have to
+check first if they already exist. Otherwise you will
+recieve the exception “NullReferenceExeception:
+Object reference not set to an instance of an object.”
+</div>
+
+<p>The following code snippet shows how to read the current
+counter value from each of these mechanisms: Next Column ----&gt;</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="light_blue">Mechanism</td>
+		<td class="light_blue">Scope</td>
+		<td class="light_blue">Lifetime</td>
+		<td class="light_blue">Base Mechanism</td>
+		<td class="light_blue">Data Type</td>
+		<td class="light_blue">Storing Value</td>
+		<td class="light_blue">Reading Value</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>View State</strong></td>
+		<td class="light_cream"><strong>Single user on a single page</strong></td>
+		<td class="light_cream">Leaving the current page</td>
+		<td class="light_cream">Hidden FIeld “ViewState”</td>
+		<td class="light_cream">Object (any serializable.NET data type)</td>
+		<td class="light_cream">Page.ViewState</td>
+		<td class="light_cream">Page.ViewState</td>
+		
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Session State</strong></td>
+		<td class="light_cream">Latest interaction of a single<br>
+			user with the web page</td>
+		<td class="light_cream">Limited number of minutes after the last request from <br>
+		the user</td>
+		<td class="light_cream">Cookie (“ASPSessionJD...”)or URL Parameter “(S(...))”<br>
+			plus server side store (local RAM, RAM on dedicated<br>
+		server or database)</td>
+		<td class="light_cream">Object. Object must be serializable<br>
+		if the store is not the local RAM</td>
+		<td class="light_cream">Page.Session</td>
+		<td class="light_cream">Page.Session</td>
+		
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Cookies</strong></td>
+		<td class="light_cream">A single User</td>
+		<td class="light_cream">Closing of the browser or dedicated point in time</td>
+		<td class="light_cream">Cookie</td>
+		<td class="light_cream">String</td>
+		<td class="light_cream">Page.Response.Cookies/td&gt;
+		</td><td class="light_cream">Page.Response.Cookies</td>
+		
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Application State</strong></td>
+		<td class="light_cream">All users</td>
+		<td class="light_cream">Shutting down the web application</td>
+		<td class="light_cream">Local RAM</td>
+		<td class="light_cream">Object</td>
+		<td class="light_cream">Page.Application</td>
+		<td class="light_cream">Page.Application</td>
+		
+	</tr>
+</tbody></table>
+
+<pre><code>
+long CurrentCounter_Application, CurrentCounter_ApplicationLimited,
+CurrentCounter_Session, CurrentCounter_Page, CurrentCounter_User;
+ if (Application[“Counter”] == null) { CurrentCounter_Application =
+  0; }
+  else { CurrentCounter_Application = Convert.ToInt64(Application[“C
+   ounter”]); }
+ if (Session[“Counter”] == null) { CurrentCounter_Session = 0; }
+  else { CurrentCounter_Session = Convert.
+   ToInt64(Session[“Counter”]);}
+ if (ViewState[“Counter”] == null) { CurrentCounter_Page = 0; }
+  else { CurrentCounter_Page = Convert.
+ToInt64(ViewState[“Counter”]); }
+ if (Request.Cookies[“Counter”] == null) { CurrentCounter_User = 0; }
+  else { CurrentCounter_User = Convert.ToInt64(Request.
+   Cookies[“Counter”].Value); }
+</code>
+</pre>
+
+<p><small><strong>Figure 7:</strong> Reading Values</small></p>
+
+<h2>Configuration</h2>
+
+<p>All configurations for ASP.NET applications are stored in XMLbased
+configuration files with the fixed name “web.config”. In
+addition to the configuration files in the application root folder,
+subfolders may also contain a web.config that overrides parent
+settings. Also, there are the global configuration files machine.
+config and web.config in the folder \Windows\Microsoft.NET\
+Framework\v2.0.50727\CONFIG that provide some default
+settings for all web applications. (Note: v2.0.50727 is still
+correct for ASP.NET 3.5!).</p>
+<p>Visual Studio and Visual Web Developer create a default root
+configuration file in your web project that contains a lot of
+internal setting for ASP.NET 3.5 to work properly. Figure 6
+shows a fragment from a web.config file with settings that are
+often used.</p>
+
+
+<pre><code>
+&lt;!-- Connection strings --&gt;
+&lt;connectionStrings&gt;
+  &lt;add name=”RegistrationDatabase” connectionString=”Data
+Source=EO2;Initial Catalog= RegistrationDatabase;Integrated
+Security=True” providerName=”System.Data.SqlClient” /&gt;
+&lt;/connectionStrings&gt;
+&lt;!-- User defined settings --&gt;
+&lt;AppSettings&gt;
+  &lt;and key=”WebmasterEMail” value=”hs@IT-Visions.de” /&gt;
+&lt;/appSettings&gt;
+&lt;system.web&gt;
+  &lt;!-- Specify a login page --&gt;
+  &lt;!-- Use the URL for storing the authentication ID if cookies are
+not allowed --&gt;
+  &lt;!-- Set the authentication timeout to 30 minutes --&gt;
+&lt;authentication mode=”Forms”&gt;
+  &lt;forms loginUrl=”Login.aspx” cookieless=”AutoDetect” timeout=”30”&gt;
+  &lt;/forms&gt;
+  &lt;/authentication&gt;
+   &lt;!-- Deny all unauthorizd access to this application --&gt;
+  &lt;authorization&gt;
+   &lt;deny users=”?” /&gt;
+  &lt;/authorization&gt;
+ &lt;!-- Use the URL for storing the session ID if cookies are not
+allowed --&gt;
+ &lt;!-- Set the session timeout to 30 minutes --&gt;
+ &lt;sessionState cookieless=”AutoDetect” timeout=”30”&gt;&lt;/sessionState&gt;
+&lt;!-- Display custom error pages for remote users --&gt;
+&lt;customErrors mode=”RemoteOnly” defaultRedirect=”GenericErrorPage.
+  htm”&gt;
+  &lt;error statusCode=”403” redirect=”NoAccess.htm” /&gt;
+  &lt;error statusCode=”404” redirect=”FileNotFound.htm” /&gt;
+&lt;/customErrors&gt;
+&lt;!-- Turn on debugging --&gt;
+&lt;compilation debug=”false”&gt;
+</code>
+</pre>
+
+
+<p><small><strong>Figure 8:</strong> Typical setting in the web.config file.</small></p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Please make sure you turn debugging off again
+before deploying your application as this decreases
+execution performance.
+</div>
+
+<h2>Deployment</h2>
+
+<p>ASP.NET applications can be deployed as source code
+via the so called “XCopy deployment”. This means you
+copy the whole content of the web project folder to the
+production system and configure the target folder on the
+production system as an IIS web application (e.g. using the
+IIS Manager). The production web server will automatically
+compile the application during the first request and recompile
+automatically if any of the source files changed.</p>
+
+<p>However, you can precompile the application into .NET
+assemblies to improve protection of your intellectual property
+and increase execution speed for the first user. Precompilation
+can be performed through Visual Studio/Visual Web developer
+(Menu “Build/Publish Website”) or the command line tool
+aspnet_compiler.exe.</p>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/046/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Download the “Visual Studio 2008 Web Deployment
+Projects” from microsoft.com. This is an Add-In that
+provides better control over the precompilation
+process.
+</div>
+ 
+<div id="author_bio_book">
+    <div id="author_bio">
+        <h3>About The Author</h3>
+        <p><img src="/sites/all/modules/dzone/assets/refcardz/046/images/author.jpg" width="69" height="92" alt="Photo of author Holger Schwichtenberg"></p>
+		<h4>Holger Schwichtenberg</h4>
+        <p>
+            Holger Schwichtenberg is one of Europe’s best-known experts
+			 on .NET and Windows PowerShell. He holds both a Master’s
+			  degree and a Ph.D. in business informatics. Microsoft recognizes
+			   him as a Most Valuable Professional (MVP) since 2003. He is a
+			   .NET Code Wise Member, an MSDN Online Expert and an INETA
+			   speaker. He regularly gives high-level talks at conferences such as
+			  TechEd, Microsoft Summit, BASTA and IT Forum. He is the CEO
+			 of the German based company www.IT-Visions.de that provides
+			consulting and training for many companies throughout Europe.
+        </p>
+		<p><strong>Publicaitions</strong></p>
+        <p>Holger Schwichtenberg has published more than twenty books for Addison Wesley
+			 and Microsoft Press in Germany, as well as about 400 journal articles. His recent
+		   book “Essential PowerShell” has also been published by Addison Wesley in English.</p>
+		   	<p><strong>Blog: </strong>
+			<a href="www.dotnet-doktor.de (German)">www.dotnet-doktor.de (German)</a></p>
+			<p><strong>Website: </strong>
+			<a href="www.IT-Visions.de/en">www.IT-Visions.de/en</a></p>
+    </div>
+    <div id="suggested_book">
+        <h3>Recommended Book</h3>
+        <img src="/sites/all/modules/dzone/assets/refcardz/046/images/rc046-010d-ASP.NET.jpg" width="136" height="170" alt="ASP.NET" id="recommended_book_cover">
+        <p>
+          An in-depth guide to the core
+		   features of Web development with
+		    ASP.NET, this book goes beyond the
+		     fundamentals. It expertly illustrates
+		      the intricacies and uses of ASP.NET
+		       3.5 in a single volume. Complete
+		      with extensive code samples and
+		     code snippets in Microsoft Visual C#
+		    2008, this is the ideal reference for
+		   developers who want to learn what
+		  s new in ASP.NET 3.5, or for those
+		 building professional-level Web
+		development skills. 
+        </p>
+        <hr>
+        <div id="purchase">
+            <p id="buy_book">
+                BUY NOW
+            </p>
+            <p>
+                <a href="books.dzone.com/books/programming-asp-net" title="Buy the book now.">books.dzone.com/books/programming-asp-net</a>
+            </p>
+        </div>
+    </div>
+</div>

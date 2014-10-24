@@ -1,0 +1,1084 @@
+<meta charset="gbk">
+		<title>Using XML in Java</title>
+		
+		<script type="text/javascript">
+            var uagent = navigator.userAgent.toLowerCase();           
+            if (uagent.search("android") > -1) {
+              document.write('<link rel="stylesheet" href="../css/refcardz_html_android.css" type="text/css" media="screen">');
+            }
+        </script>
+	
+	    <base href="http://refcardz.dzone.com/" />
+	
+		<h1><span id="main_topic">Using XML</span> in Java</h1>
+		<p class="author_name">By Masoud Kalali</p>
+		
+		<h2>ABOUT XML</h2>
+		
+<p>XML is a general-purpose specification for creating custom
+mark-up languages. It is classified as an extensible language
+because it allows its users to define their own elements. Its
+primary purpose is to help information systems share structured
+data, particularly via the Internet, and it is used both to encode
+documents and to serialize data. In the latter context, it is
+comparable with other text-based serialization languages such
+as JSON and YAML.</p>
+
+<p>As a diverse platform, Java has several solutions for working
+with XML. This refcard provides developers a concise overview
+of the different xml processing technologies in Java, and a use
+case of each technology.</p>
+
+<h2>XML FILE SAMPLE</h2>
+
+<pre><code>
+1 &lt;?xml version=”1.0” encoding=”UTF-8”?&gt;
+2 &lt;!DOCTYPE publications SYSTEM “publications.dtd”&gt;
+3 &lt;publications
+4 xmlns:xsi=”http://www.w3.org/2001/XMLSchema-instance”
+5 xsi:schemaLocation=”http://xml.dzone.org/schema/publications
+6 publications.xsd”
+7 xmlns=”http://xml.dzone.org/schema/publications”
+8 xmlns:extras=”http://xml.dzone.org/schema/publications”&gt;
+9    &lt;book id=”_001”&gt;
+10      &lt;title&gt;Beginning XML, 4th Edition &lt;/title&gt;
+11     &lt;author&gt;David Hunter&lt;/author&gt;
+12     &lt;copyright&gt;2007&lt;/copyright&gt;
+13     &lt;publisher&gt;Wrox&lt;/publisher&gt;
+14     &lt;isbn kind=”10”&gt;0470114878&lt;/isbn&gt;
+15   &lt;/book&gt;
+16   &lt;book id=”_002”&gt;
+17     &lt;title&gt;XML in a Nutshell, Third Edition&lt;/title&gt;
+18     &lt;author&gt;O’Reilly Media, Inc&lt;/author&gt;
+19     &lt;copyright&gt;2004&lt;/copyright&gt;
+20     &lt;publisher&gt;O’Reilly Media, Inc.&lt;/publisher&gt;
+21     &lt;isbn kind=”10”&gt;0596007647&lt;/isbn&gt;
+22   &lt;/book&gt;
+23   &lt;extras:book id=”_003” image=”erik_xml.jpg”&gt;
+24     &lt;title&gt;Learning XML, Second Edition&lt;/title&gt;
+25     &lt;author&gt;Erik Ray&lt;/author&gt;
+26     &lt;copyright&gt;2003&lt;/copyright&gt;
+27     &lt;publisher&gt;O’Reilly Media, Inc.&lt;/publisher&gt;
+28     &lt;isbn kind=”10”&gt;0596004206&lt;/isbn&gt;
+29   &lt;/extras:book&gt;
+30 &lt;/publications&gt;
+</code>
+</pre>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Line 1:</strong> An XML document always starts with a prolog which describes the XML file. This
+			prolog can be minimal, e.g. &lt;?xml version=”1.0”?&gt; or can contain other information. For
+			  example, the encoding:
+			     &lt;?xml version=”1.0” encoding=”UTF-8” standalone=”yes” ?&gt;</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 2:</strong> DOCTYPE : DTD definitions can either be embedded in the XML document or referenced
+			from a DTD file. Using the System keyword means that the DTD file should be in
+			  the same folder our XML file resides.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 3:</strong> ROOT ELEMENT: Every well-formed document should have one and only one root
+		      element. All other elements reside inside the root element.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Lines 4 – 8:</strong> namespace declaration: Line 4 defines the XSI prefix, lines 5 &amp; 6 defines the
+		    current URL and XSD file location, line 7 defines the current document default namespace,
+		      and line 8 defines a prefix for an XML schema.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 20:</strong> Element: An element is composed of its start tag, end tag and the possible content
+		    which can be text or other nested elements.</td>
+	</tr>
+</tbody></table>
+
+<h3>XML File Sample, continued</h3>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Line 23:</strong> namespace prefixed tag: a start tag prefixed by a namespace. End tag must be namespace
+				prefixed in order to get a document, the end tag is line 29.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 28:</strong> Attribute: an attribute is part of an element, consisting of an attribute name and
+			its value.</td>
+	</tr>
+</tbody></table>
+
+<h3>Capabilities of Element and Attribute</h3>
+
+<h3>Capabilities of Element and Attribute</h3>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Capability</strong></td>
+		<td class="dark_cream"><strong>Attribute</strong></td>
+		<td class="dark_cream"><strong>Element</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Hierarchical</td>
+		<td class="light_cream">No – flat</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Ordered</td>
+		<td class="light_cream">No – undefined</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Complex types</td>
+		<td class="light_cream">No – string only</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Verbose</td>
+		<td class="light_cream">Less – usually</td>
+		<td class="light_cream">More</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Readability</td>
+		<td class="light_cream">Less</td>
+		<td class="light_cream">More – usually</td>
+	</tr>
+</tbody></table>
+
+<h3>XML Use Cases</h3>
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Requirement/Characteristic</strong></td>
+		<td class="dark_cream"><strong>Suitable XML Features</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Interoperability</td>
+		<td class="light_cream">XML can be used independent of the target language or
+		platform or target device.
+		Use XML when you need to support or interact with
+		multiple platforms.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Multiple output format for multiple devices</td>
+		<td class="light_cream">XML Transformation can help you get a required format
+		from plain XML files.
+		Use XML as the preferred output format when multiple
+		output formats are required.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Content size</td>
+		<td class="light_cream">Use XML when messaging and processing efficiency is
+		less important than interoperability and availability of
+		standard tools.<br>
+		Large content can create a big XML document. Use
+		compression for XML documents or use other industry
+		standards like ASN.1.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Project size</td>
+		<td class="light_cream">For Using XML you need at least XML parsing libraries
+		and helper classes to measure the project size and XML
+		related required man/ hour before using XML.<br>
+		For small projects with simple requirements, you might
+		not want to incur the overhead of XML.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Searching</td>
+		<td class="light_cream">There are some technologies for searching in a XML
+		document like XPath (<a href="www.w3schools.com/XPath/default.
+		asp">www.w3schools.com/XPath/default.
+		asp</a>) and Xquery (<a href="http://www.xquery.com/">http://www.xquery.com/</a>) but they are
+		relatively young and immature.
+		Don’t use XML documents when searching is important.
+		Instead, store the content in a traditional database, use
+		XML databases or use XML-aware databases.</td>
+	</tr>
+</tbody></table>
+
+<h2>PARSING TECHNIQUES&lt;</h2>
+
+<p>In order to use a XML file or a XML document inside an application,it will be required to read it and tokenize it. For the XML
+   files, this is called XML Parsing and the piece of software which performs this task is called a Parser.</p>
+
+<p>There are two general parsing techniques:
+</p><ul>
+	<li>In Memory Tree: The entire document is read into memory
+	   as a tree structure which allows random access to any part
+	 of the document by the calling application.</li>
+	<li> Streaming (Event processing): A Parser reads the document
+	  and fires corresponding event when it encounters
+	 XML entities.</li>
+
+</ul>
+<p></p>
+
+<p>Two types of parsers use streaming techniques:
+</p><ul>
+	<li>Push parsers: Parsers are in control of the parsing and
+          the parser client has no control over the parsing flow.</li>
+	<li>Pull parsers: The Parser client is in control of the parsing
+		and the parser goes forward to the next infoset element
+		  when it is asked to.</li>
+
+</ul>
+<p></p>
+
+<p>Following are parsers generally available in the industry:
+</p><ul>
+	<li>DOM: DOM is a tree-based parsing technique that builds up an entire parse tree in memory. It allows complete dynamic access to a whole XML document.</li>
+	<li>SAX: SAX is an event-driven push model for processing XML. It is not a W3C standard, but it’s a very wellrecognized API that most SAX parsers implement in a compliant way. Rather than building a tree representation of an entire document as DOM does, a SAX parser fires off a series of events as it reads through the document.</li>
+	<li>StAX (JSR 173): StAX was designed as a median between DOM and SAX. In StAX, the application moves the cursor forward ‘pulling’ the information from the parser as it needs. So there is no event firing by the parser or huge memory consumption. You can use 3rd party libraries for Java SE 5 and older or bundled StAX parser of Java SE 6 and above.</li>
+</ul>
+<p></p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Feature</strong></td>
+		<td class="dark_cream"><strong>StAX</strong></td>
+		<td class="dark_cream"><strong>SAX</strong></td>
+		<td class="dark_cream"><strong>DOM</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>API Type</strong></td>
+		<td class="light_cream">Pull, streaming</td>
+		<td class="light_cream">Push, streaming</td>
+		<td class="light_cream">In memory tree</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Ease of Use</strong></td>
+		<td class="light_cream">High</td>
+		<td class="light_cream">Medium</td>
+		<td class="light_cream">High</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>XPath Capability</strong></td>
+		<td class="light_cream">No</td>
+		<td class="light_cream">No</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>CPU and Memory<br> Efficiency</strong></td>
+		<td class="light_cream">Good</td>
+		<td class="light_cream">Good</td>
+		<td class="light_cream">Varies</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Forward Only</strong></td>
+		<td class="light_cream">Yes</td>
+		<td class="light_cream">Yes</td>
+		<td class="light_cream">No</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Read XML</strong></td>
+		<td class="light_cream">Yes</td>
+		<td class="light_cream">Yes</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Write XML</strong></td>
+		<td class="light_cream">Yes</td>
+		<td class="light_cream">No</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Create, Read,<br>Update or Delete<br>Nodes</strong></td>
+		<td class="light_cream">No</td>
+		<td class="light_cream">No</td>
+		<td class="light_cream">Yes</td>
+	</tr>
+</tbody></table>
+
+<h3>Parsing Techniques, continued</h3>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_blue"><strong>Best for<br>Applications in<br>need of:</strong></td>
+		<td class="light_cream"><ul>
+			<li>Streaming Model</li>
+			<li>Not modifying <br> the document</li>
+			<li>Memory efficiency</li>
+			<li>XML read and XML write </li>
+			<li>Parcing multiple<br>documents in the<br>same thread</li>
+			<li>Small devices</li>
+			<li>Looking certain tag </li>
+		</ul></td>
+		<td class="light_cream">
+			<ul>
+				<li>Read only manipulation</li>
+				<li>Not modifying the document </li>
+				<li>Memory efficiency</li>
+				<li>Small devices</li>
+				<li>Looking for a certain tag</li>
+			</ul>
+		</td>
+		<td class="light_cream"><ul>
+			<li>Modifying the XML document </li>
+			<li>XPath, XSLT</li>
+			<li>XML tree traversing and<br>	random access<br>to any section </li>
+			<li>Merging documents</li>
+		</ul></td>
+	</tr>
+</tbody></table>
+
+<p>All of these parsers fall under JAXP implementation. The following sample codes show how we can utilize Java SE 6 XML processing capabilities for XML parsing.</p>
+
+<h2>PARSING XML USING DOM</h2>
+
+<pre><code>
+14 DocumentBuilderFactory factory = DocumentBuilderFactory.
+15 newInstance();
+16 factory.setValidating(true);
+17 factory.setNamespaceAware(true);
+18 factory.setAttribute(“http://java.sun.com/xml/jaxp/properties
+19 /schemaLanguage”, “http://www.w3.org/2001/XMLSchema”);
+20 DocumentBuilder builder = factory.newDocumentBuilder();
+21 builder.setErrorHandler(new SimpleErrorHandler());
+22 Document doc = builder.parse(“src/books.xml”);
+23 NodeList list = doc.getElementsByTagName(“*”);
+24 for (int i = 0; i &lt; list.getLength(); i++) {
+25 		Element element = (Element) list.item(i);
+26 		System.out.println(element.getNodeName() + “ “ +
+27 		element.getTextContent());
+28 		if (element.getNodeName().equalsIgnoreCase(“book”)) {
+29 			System.out.println(“Book ID= “ + element
+30 			getAttribute(“id”));
+31		 }
+32      if (element.getNodeName().equalsIgnoreCase(“isbn”)) {
+33			 System.out.println(“ISBN Kind=” + element
+34 			getAttribute(“kind”));
+35 		}
+</code>
+</pre>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Line 16:</strong> In order to validate the XML using internal DTD we need only to setValidation(true).
+		To validate a document using DOM, ensure that there is no schema in the document,
+		and no element prefix for our start and end tags.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 17:</strong> The created parser is namespace aware (the namespace prefix will be dealt with
+		as a prefix, and not a part of the element).</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Lines 18 – 19:</strong> The created parser uses internal XSD to validate the document Dom
+		BuilderFactory instances accept several features which let developers enable or disable
+		a functionality, one of them is validating against the internal XSD.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><pre><code>
+<strong>Line 21:</strong> Although DOM can use some default error handler, it’s usually better to set
+our own error handler to handle different levels of possible errors in the document. The
+default handler has different behaviors based on the implementation that we use. A
+simple error handler might be:
+11 public class SimpleErrorHandler implements ErrorHandler {
+12
+13	 public void warning(SAXParseException e) throws SAXException
+{
+14		 System.out.println(e.getMessage());
+15	 }
+16
+17	 public void error(SAXParseException e) throws SAXException {
+18	   System.out.println(e.getMessage());
+19	 }
+20
+21	 public void fatalError(SAXParseException e) throws SAXException {
+22 		System.out.println(e.getMessage());
+23  }
+24 }
+25 }
+</code>
+</pre></td>
+	</tr>
+</tbody></table>
+
+<h2>PARSING XML USING SAX</h2>
+<p>For using SAX, we need the parser and an event handler that
+should respond to the parsing events. Events can be a start
+element event, end element event, and so forth.</p>
+
+<p>A simple event handler might be:</p>
+
+<pre><code>
+public class SimpleHandler extends DefaultHandler {
+
+public void startElement(String namespaceURI, String localName,
+	String qName, Attributes atts)
+	throws SAXException {
+  if (“book”.equals(localName)) {
+	System.out.print(“Book details: Book ID: “ + atts
+	getValue(“id”));
+  } else {
+	System.out.print(localName + “: “);
+	}
+}
+public void characters(char[] ch, int start, int length)
+	throws SAXException {
+  System.out.print(new String(ch, start, length));
+}
+  public void endElement(String namespaceURI, String localName,
+  String qName)
+	throws SAXException {
+  if (“book”.equals(localName)) {
+	System.out.println(“=================================”);
+	}
+  }
+}
+</code>
+</pre>
+
+<p>The parser code that uses the event handler to parse the book. xml document might be:</p>
+
+<pre><code>
+SAXParser saxParser;
+SAXParserFactory factory = SAXParserFactory.newInstance();
+factory.setNamespaceAware(true);
+factory.setValidating(true);
+saxParser = factory.newSAXParser();
+saxParser.setProperty(
+	“http://java.sun.com/xml/jaxp/properties/schemaLanguage”,
+  “http://www.w3.org/2001/XMLSchema”);
+XMLReader reader = saxParser.getXMLReader();
+reader.setErrorHandler(new SimpleErrorHandler());
+reader.setContentHandler(new SimpleHandler());
+reader.parse(“src/books.xml”);
+</code>
+</pre>
+
+<h2>PARSING XML USING StAX</h2>
+
+<p>StAX is a streaming pull parser. It means that the parser client can ask the parser to go forward in the document when it needs. StAX provides two sets of APIs:
+</p><ul>
+	<li>The cursor API methods return XML information as strings,which minimizes object allocation requirements.</li>
+	<li>Iterator-based API which represents the current state of the parser as an Object. The parser client can get all the required information about the element underlying the event from the object.</li>
+</ul>
+<p></p>
+
+<h4>Differences and features of StAX APIs</h4>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Cursor API: Best in frameworks and libraries</strong></td>
+		<td class="dark_cream"><strong>Iterator API: Best in applications</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">More memory efficient</td>
+		<td class="light_cream">XMLEvent subclasses are immutable(Direct<br>use in other part of the application)</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Better overall performance</td>
+		<td class="light_cream">New subclass of XMLEvent can be<br>developed and used when required</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Forward only</td>
+		<td class="light_cream">Applying event filters to reduce event<br>processing costs</td>
+	</tr>
+</tbody></table>
+
+<h2>A SAMPLE USING StAX PARSER</h2>
+
+<pre><code>
+XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+InputStream in = new FileInputStream(“src/books.xml”);
+XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+while (eventReader.hasNext()) {
+ XMLEvent event = eventReader.nextEvent();
+ if (event.isEndElement()) {
+   if (event.asEndElement().getName().getLocalPart()
+   equals(“book”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“=================================”);
+	continue;
+}
+}
+if (event.isStartElement()) {
+if (event.asStartElement().getName().getLocalPart()
+equals(“title”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“title: “ + event.asCharacters()
+	getData());
+	continue;
+}
+if (event.asStartElement().getName().getLocalPart()
+equals(“author”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“author: “ + event.asCharacters()
+	getData());
+	continue;
+}
+if (event.asStartElement().getName().getLocalPart()
+equals(“copyright”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“copyright: “ + event
+	asCharacters().getData());
+	continue;
+}
+if (event.asStartElement().getName().getLocalPart()
+equals(“publisher”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“publisher: “ + event.asCharacters()
+	getData());
+	continue;
+}
+if (event.asStartElement().getName().getLocalPart()
+equals(“isbn”)) {
+	event = eventReader.nextEvent();
+	System.out.println(“isbn: “ + event.asCharacters()
+	getData());
+	continue;
+}
+}
+}
+</code>
+</pre>
+
+<h2>XML STRUCTURE</h2>
+
+<p>There are two levels of correctness of an XML document:
+</p><ol>
+	<li><strong>Well-formed-ness.</strong> A well-formed document conforms to
+		 all of XML’s syntax rules. For example, if a start-tag appears
+		  without a corresponding end-tag, it is not well-formed. A
+		 document that is not well-formed is not considered to be
+		XML.</li>
+</ol>
+
+<p>Sample characteristics:</p>
+<ul>
+	<li>XML documents must have a root element</li>
+	<li>XML elements must have a closing tag</li>
+	<li>XML tags are case sensitive</li>
+	<li>XML elements must be properly nested</li>
+	<li>XML attribute values must always be quoted</li>
+</ul>
+
+<ol>
+	<li><strong>Validity.</strong> A valid document conforms to semantic rules. The rules are included as XML schema, especially DTD. Examples of invalid documents include: if a required
+	attribute or element is not present in the document; if the document contains an undefined element; if an element is meant to be repeated once, and appears more than once; or if the value of an attribute does not conform to the defined pattern or data type.</li>
+</ol>
+
+<h3>XML Structure, continued</h3>
+<p>XML validation mechanisms include using DTD and XML schema like XML Schema and RelaxNG.</p>
+
+<h3>Document Type Definition (DTD)</h3>
+<p>A DTD defines the tags and attributes used in a XML or HTML document. Elements defined in a DTD can be used, along with the predefined tags and attributes of each markup language.
+DTD support is ubiquitous due to its inclusion in the XML 1.0 standard.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>DTD Advantages:</strong></td>
+		<td class="dark_cream"><strong>DTD Disadvantages:</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Easy to read and write (plain text file with a simple semixml format).</td>
+		<td class="light_cream">No type definition system.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Can be used as an in-line definition inside the XML documents.</td>
+		<td class="light_cream">No means of element and attribute content definition and validation.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Includes #define, #include, and #ifdef; the ability
+		to define shorthand abbreviations, external
+		content, and some conditional parsing.</td>
+		<td class="light_cream"></td>
+	</tr>
+</tbody></table>
+
+<h4>A sample DTD document</h4>
+
+<pre><code>
+1  &lt;?xml version=”1.0” encoding=”UTF-8”?&gt;
+2  &lt;!ELEMENT publications (book*)&gt;
+3  &lt;!ELEMENT book (title, author+, copyright, publisher, isbn,
+4  description?)&gt;
+5  &lt;!ELEMENT title (#PCDATA)&gt;
+6  &lt;!ELEMENT author (#PCDATA)&gt;
+7  &lt;!ELEMENT copyright (#PCDATA)&gt;
+8  &lt;!ELEMENT publisher (#PCDATA)&gt;
+9  &lt;!ELEMENT isbn (#PCDATA)&gt;
+10 &lt;!ELEMENT description (#PCDATA)&gt;
+11 &lt;!ATTLIST book id ID #REQUIRED image CDATA #IMPLIED&gt;
+12 &lt;!ATTLIST isbn kind (10|13) #REQUIRED &gt;
+</code>
+</pre>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Line 2:</strong> publications element has 0...unbounded number of book elements inside it.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 3:</strong> book element has one or more author elements, 0 or 1 description elements and<br>
+			exactly one title, copyright, publisher and isbn elements inside it.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 11:</strong> book element has two attributes, one named id of type ID which is mandatory,<br>
+			and an image attribute from type CDATA which is optional.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 12:</strong> isbn element has an attribute named kind which can have 10 or 13 as its value.</td>
+	</tr>
+</tbody></table>
+
+<h4>DTD Attribute Types</h4>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>DTD Attribute Type</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>CDATA</strong></td>
+		<td class="light_cream">Any character string acceptable in XML</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>NMTOKEN</strong></td>
+		<td class="light_cream">Close to being a XML name; first character is looser</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>NMTOKENS</strong></td>
+		<td class="light_cream">One or more NMTOKEN tokens separated by white space
+Enumeration List of the only allowed values for an attribute</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>ENTITY</strong></td>
+		<td class="light_cream">Associates a name with a macro-like replacement</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>ENTITIES</strong></td>
+		<td class="light_cream">White-space-separated list of ENTITY names</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>ID</strong></td>
+		<td class="light_cream">XML name unique within the entire document</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>IDREF</strong></td>
+		<td class="light_cream">Reference to an ID attribute within the document</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>IDREFS</strong></td>
+		<td class="light_cream">White-space-separated list of IDREF tokens</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>NOTATION</strong></td>
+		<td class="light_cream">Associates a name with information used by the client</td>
+	</tr>
+</tbody></table>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>What a DTD can validate</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Element nesting</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Element occurrence</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Permitted attributes of an element</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Attribute types and default values</td>
+	</tr>
+	
+</tbody></table>
+
+<h3>XML Schema Definition (XSD)</h3>
+
+<p>XSD provides the syntax and defines a way in which elements and attributes can be represented in a XML document. It also advocates the XML document should be of a specific format and specific data type. XSD is fully recommended by the W3C
+		consortium as a standard for defining a XML Document. XSD documents are written in XML format.</p>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>XSD Advantages:</strong></td>
+		<td class="dark_cream"><strong>XSD Disadvantages:</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">XSD has a much richer language for describing what element or attribute content “looks like.”
+			This is related to the type system.</td>
+		<td class="light_cream">Verbose language, hard to read and write</td>
+	</tr>
+	<tr>
+		<td class="light_blue">XSD Schema supports Inheritance, where one schema can inherit from another schema. This is a
+			great feature because it provides the opportunity for re-usability.</td>
+		<td class="light_cream">Provides no mechanism for the user to add more data types.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">It is namespace aware and provides the ability to define its own data type from the existing data type.</td>
+		<td class="light_cream"></td>
+	</tr>
+</tbody></table>
+
+<h4>A sample XSD document</h4>
+
+<pre><code>
+1 &lt;?xml version=”1.0” encoding=”UTF-8”?&gt;
+2 &lt;xs:schema xmlns:xs=”http://www.w3.org/2001/XMLSchema”
+3 	  xmlns:extras=”http://xml.dzone.org/schema/publications”
+4 	  attributeFormDefault=”unqualified” elementFormDefault=”unqualified”
+5 	  xmlns=”http://xml.dzone.org/schema/publications”
+6 	  targetNamespace=”http://xml.dzone.org/schema/publications”
+7	  version=”4”&gt;
+8 	&lt;xs:element name=”publications”&gt;
+9 	  &lt;xs:complexType&gt;
+10       &lt;xs:sequence&gt;
+11 			&lt;xs:element minOccurs=”0” maxOccurs=”unbounded”
+12 			ref=”book”/&gt;
+13       &lt;/xs:sequence&gt;
+14    &lt;/xs:complexType&gt;
+15 &lt;/xs:element&gt;
+16 &lt;xs:element name=”book”&gt;
+17    &lt;xs:complexType&gt;
+18 		 &lt;xs:sequence&gt;
+19         &lt;xs:element ref=”title”/&gt;
+20 		   &lt;xs:element minOccurs=”1” maxOccurs=”unbounded”
+21 		   ref=”author”/&gt;
+22 		   &lt;xs:element ref=”copyright”/&gt;
+23 		   &lt;xs:element ref=”publisher”/&gt;
+24 		   &lt;xs:element ref=”isbn”/&gt;
+25 		   &lt;xs:element minOccurs=”0” ref=”description”/&gt;
+26       &lt;/xs:sequence&gt;
+27       &lt;xs:attributeGroup ref=”attlist.book”/&gt;
+28    &lt;/xs:complexType&gt;
+29 &lt;/xs:element&gt;
+30 &lt;xs:element name=”title” type=”xs:string”/&gt;
+31 &lt;xs:element name=”author” type=”xs:string”/&gt;
+32 &lt;xs:element name=”copyright” type=”xs:string”/&gt;
+33 &lt;xs:element name=”publisher” type=”xs:string”/&gt;
+34 &lt;xs:element name=”isbn”&gt;
+35    &lt;xs:complexType mixed=”true”&gt;
+36		   &lt;xs:attributeGroup ref=”attlist.isbn”/&gt;
+37    &lt;/xs:complexType&gt;
+38 &lt;/xs:element&gt;
+39 &lt;xs:element name=”description” type=”xs:string”/&gt;
+40 &lt;xs:attributeGroup name=”attlist.book”&gt;
+41 	  &lt;xs:attribute name=”id” use=”required” type=”xs:ID”/&gt;
+42    &lt;xs:attribute name=”image”/&gt;
+43 &lt;/xs:attributeGroup&gt;
+44 &lt;xs:attributeGroup name=”attlist.isbn”&gt;
+45    &lt;xs:attribute name=”kind” use=”required”&gt;
+46         &lt;xs:simpleType&gt;
+47 			  &lt;xs:restriction base=”xs:token”&gt;
+48 				  &lt;xs:enumeration value=”10”/&gt;
+49 			      &lt;xs:enumeration value=”13”/&gt;
+50            &lt;/xs:restriction&gt;
+51         &lt;/xs:simpleType&gt;
+52     &lt;/xs:attribute&gt;
+53   &lt;/xs:attributeGroup&gt;
+54 &lt;/xs:schema&gt;
+</code>
+</pre>
+
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream">L<strong>ines 2 – 7:</strong> Line 2 defines XML Schema namespace. Line 3 defines available schemas where it can use its vocabulary. Line 4 specifies whether locally declared elements and attributes are namespace qualified or not. A locally declared element is an element
+			declared directly inside a complexType (not by reference), Line 5 declares the default namespace for this schema document. Lines 6 and 7 define the namespace that a XML document can use in order to make it possible to validate it with this schema.</td>
+	</tr>
+</tbody></table>
+
+<h3>XML Schema Definition (XSD), continued</h3>
+
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Lines 9 – 14:</strong> An element named publications has a sequence of an unbounded number of books inside it.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 20:</strong> the element named book has a sequence of multiple elements inside it including author which at least should appear as 1, and also an element named description with a minimum occurrence of 0. Its maximum occurrence is the default value which is 1.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Lines 34 – 38:</strong> the isbn element has a group of attributes referenced by a attlist.isbn. This attribute group includes one attribute named kind (Lines 46 – 51) with a simple value. The value has a restriction which requires it to be one of the enumerated values included in the definition.</td>
+	</tr>
+</tbody></table>
+
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/035/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+The separation of an element type definition and its use. We declared our types separately
+from where we referenced them (use them). ref attributes point to a declaration with the same
+name. Using this technique we can have separate XSD files and each of them contains definition and declarations related
+to one specific package. We can also import or include them in other XSD documents, if needed.
+</div>
+
+<div class="hot_tip">
+<p><img src="/sites/all/modules/dzone/assets/refcardz/035/../images/hot_tip.gif" alt="Hot Tip" width="64" height="64" class="hot_tip_icon"></p>
+Import and include. The import and include elements help to construct a schema from multiple
+documents and namespaces. The import element brings in a schema from a different
+namespace, while the include element brings in a schema from the same namespace. When include is used, the target
+namespace of the included schema must be the same as the target namespace of the including schema. In the case of
+import, the target namespace of the included schema must be different.
+</div>
+
+<p>To validate XML files using external XSD, replace line 17 – 20 of the DOM sample with:
+	</p><ul>
+		<li>factory.setValidating(false);</li>
+		<li>factory.setNamespaceAware(true);</li>
+		<li>SchemaFactory schemaFactory = SchemaFactory.newInstance(“http:/</li>
+		<li>www.w3.org/2001/XMLSchema”);</li>
+		<li>factory.setSchema(schemaFactory.newSchema(new Source[]{new</li>
+		<li>StreamSource(“src/publication.xsd”))});</li>
+	</ul>
+ <p></p>
+
+<h4>XML Schema validation factors</h4>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Validation factor</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Length, minLength, maxLength, maxExclusive, maxInclusive, minExclusive, minInclusive</strong></td>
+		<td class="light_cream">Enforces a length for the string derived value, either its maximum, minimum, maximum or minimum, inclusive and exclusive.</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>enumeration</strong></td>
+		<td class="light_cream">Restricts values to a member of a defined list</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>TotalDigits, fractionDigits</strong></td>
+		<td class="light_cream">Enforces total digits in a number; signs and decimal points skipped. Enforces total fractional digits in a fractional number</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>whiteSpace</strong></td>
+		<td class="light_cream">Used to preserve, replace, or collapse document white space</td>
+	</tr>
+	
+</tbody></table>
+
+<h4>XML Schema built-in types</h4>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Type</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>anyURI</strong></td>
+		<td class="light_cream">Uniform Resource Identifier</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>base64Binary</strong></td>
+		<td class="light_cream">base64 encoded binary value</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>Boolean; byte; dateTime; integer; string</strong></td>
+		<td class="light_cream">True, false or 0, 1; Signed quantity &gt;= 128 and &lt; 127; An absolute date and time; Signed integer; Unicode string</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>ID, IDREF, IDREFS,ENTITY, ENTITIES,</strong></td>
+		<td class="light_cream">Used to preserve, replace, or collapse document white space</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>NOTATION, NMTOKEN,NMTOKENS</strong></td>
+		<td class="light_cream">Same definitions as those in DTD</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>language</strong></td>
+		<td class="light_cream">"xml:lang" values from XML 1.0 Recommendation.</td>
+	</tr>
+	<tr>
+		<td class="light_blue"><strong>name</strong></td>
+		<td class="light_cream">An XML name</td>
+	</tr>
+	
+	
+</tbody></table>
+
+<h4>DTD and XSD validation capabilities</h4>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>W3C XML Schema Features</strong></td>
+		<td class="dark_cream"><strong>DTD Features</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Namespace-qualified element and attribute declarations</td>
+		<td class="light_cream">Element nesting</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Simple and complex data types</td>
+		<td class="light_cream">Element occurrence</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Type derivation and inheritance</td>
+		<td class="light_cream">Permitted attributes of an element</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Element occurrence constraints</td>
+		<td class="light_cream">Attribute types and default values</td>
+	</tr>
+</tbody></table>
+
+<h2>XPATH</h2>
+
+<p>XPath is a declarative language used for referring to sections of XML documents. XPath expressions are used for locating a set
+of nodes in a given XML document. Many XML technologies, like XSLT and XQuery, use XPath extensively. To use these
+technologies, you’ll need to understand the basics of XPpath. All samples in this section assume we are working on a XML
+document similar to the XML document on page 1.</p>
+
+<h3>Sample XPath Expressions and Output</h3>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>XPath Expression</strong></td>
+		<td class="dark_cream"><strong>Output</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">/publications/book[publisher="Wrox"]/copyright</td>
+		<td class="light_cream">2007</td>
+	</tr>
+	<tr>
+		<td class="light_blue">/publications//book[contains(title,"XML")]/author</td>
+		<td class="light_cream">David Hunter ’Reilly Media, Inc Erik Ray</td>
+	</tr>
+	<tr>
+		<td class="light_blue">/publications//book[contains(title,"XML") and position()=3]/@id</td>
+		<td class="light_cream">_003</td>
+	</tr>
+	<tr>
+		<td class="light_blue">/publications//book[contains(title,"XML") and position()=3 ]/copyright mod 7</td>
+		<td class="light_cream">1</td>
+	</tr>
+</tbody></table>
+
+<p>As you can see, contains and positions functions are two widely used XPath functions.</p>
+
+<h3>Important XPath Functions</h3>
+
+<table cellpadding="0" cellspacing="0">
+	<tbody><tr>
+		<td class="dark_blue"><strong>Operate On</strong></td>
+		<td class="dark_cream"><strong>Function</strong></td>
+		<td class="dark_cream"><strong>Description</strong></td>
+	</tr>
+	<tr>
+		<td class="light_blue">Node set</td>
+		<td class="light_cream">count(node-set)</td>
+		<td class="light_cream">Returns the number of nodes that are in the node set.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Node set</td>
+		<td class="light_cream">last()</td>
+		<td class="light_cream">Returns the position of the last node in the node set.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Numbers</td>
+		<td class="light_cream">ceiling(number)</td>
+		<td class="light_cream">Returns an integer value equal to or greater than the specified number.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Numbers</td>
+		<td class="light_cream">sum(node-set)</td>
+		<td class="light_cream">Returns the sum of the numerical values in the specified node set.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Boolean</td>
+		<td class="light_cream">lang(language)</td>
+		<td class="light_cream">Checks to see if the given language matches the language specified by the xsl:lang element.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">Boolean</td>
+		<td class="light_cream">boolean(argument)</td>
+		<td class="light_cream">Converts the argument to Boolean.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">String</td>
+		<td class="light_cream">substringafter(string1, string2)</td>
+		<td class="light_cream">Returns the portion of string1 that comes after the occurrence of string2 (which is a subset of string1).</td>
+	</tr>
+	<tr>
+		<td class="light_blue">String</td>
+		<td class="light_cream">normalizespace(string)</td>
+		<td class="light_cream">Returns the given string with no leading or trailing whitespaces, and removes sequences of whitespaces by replacing them with a single whitespace.</td>
+	</tr>
+	<tr>
+		<td class="light_blue">String</td>
+		<td class="light_cream">concat(string1,string2, stringN)</td>
+		<td class="light_cream">Returns a string containing the concatenation of the specified string arguments.</td>
+	</tr>
+</tbody></table>
+
+<h3>Using XPath in a Java Application</h3>
+
+<pre><code>
+17 Document xmlDocument;
+18 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.
+19 newInstance();
+20 DocumentBuilder builder = dbFactory.newDocumentBuilder();
+21 xmlDocument = builder.parse(“src/books.xml”);
+22 XPathFactory factory = XPathFactory.newInstance();
+23 XPath xPath = factory.newXPath();
+24 String copyright = xPath.evaluate
+25	     (“/publications/book[publisher= ‘Wrox’]/copyright”, xmlDocument);
+26 System.out.println(“Copyright: “ + copyright);
+27 NodeList nodes = (NodeList) xPath.evaluate(“//book”, xmlDocument,
+28 XPathConstants.NODESET);
+29 String bookid = xPath.evaluate
+30     (“/publications//book[contains(title,’XML’) and position()=3]/@id”,
+31   xmlDocument);
+32 System.out.println(“Book ID: “ + bookid);
+</code>
+</pre>
+
+<table cellpadding="0" cellspacing="0">
+	
+	<tbody><tr>
+		<td class="light_cream"><strong>Line 21:</strong> Prepares the XML document object to feed the XPath parser. We can use other types of InputSources.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Lines 22 – 23:</strong> Creates a XPath factory. The factory is a heavyweight object that needs to be re-used often.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 24:</strong> Evaluates a simple expression which returns a primary type (String).</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Lines 25:</strong> The double quotation is replaced with a single quotation to make the string easy to create and read.</td>
+	</tr>
+	<tr>
+		<td class="light_cream"><strong>Line 27:</strong> An expression which returns multiple nodes. The QName is determined for the return type, and later cast to NodeList.</td>
+	</tr>
+	<tr>
+	<td class="light_cream"><strong>Lines 28:</strong> Using XPathConstants, we can determine the evaluation result type for being either a NodeList or a String.</td>
+	</tr>
+</tbody></table>
+
+
+<div id="author_bio_book">
+	<div id="author_bio">		
+		<h3>About The Author</h3>
+		<p><img src="/sites/all/modules/dzone/assets/refcardz/035/images/author.jpg" width="161" height="200" alt="Photo of author Masoud Kalali"></p>
+		<h4>Masoud Kalali</h4>
+		<p>Masoud Kalali holds a software engineering degree and has been working
+		   on software development projects since 1999. He is experienced with .Net
+		     but his platform of choice is Java. His experience is in software architecture,
+		       design and server side development. Masoud’s main area of research and
+		     interest is XML Web Services and Service Oriented Architecture. He has
+		   several published articles and on-going book.</p>
+		<h4>Publications</h4>
+		<p>GlassFish in Action, Manning Publications</p>
+		<h4>Projects</h4>
+		<p>Netbeans contributor<br>GlassFish contributor</p>
+		<h4>Blog</h4>
+		<p><a href="http://weblogs.java.net/blog/kalali">http://weblogs.java.net/blog/kalali</a></p>
+	</div>
+	<div id="suggested_book">
+		<h3>Recommended Book</h3>
+		<img src="/sites/all/modules/dzone/assets/refcardz/035/images/rc035-010d-ProXMLDevelopment.jpg" width="114" height="150" alt="Pro XML Development with Java Technology" id="recommended_book_cover">
+		<p>Pro XML Development with Java Technology covers all the essential XML topics, including XML Schemas, addressing of
+		     XML documents through XPath, transformation of XML documents using XSLT stylesheets,storage and retrieval of XML content in native XML and
+		        relational databases, web applications based on Ajax,and SOAP/HTTP and WSDL based Web Services.</p>
+		<hr>
+		<div id="purchase">
+			<p id="buy_book">BUY NOW</p>
+			<p><a href="http://books.dzone.com/books/jsf" title="Buy the book now.">books.dzone.com/books/pro-xml</a></p>
+		</div>
+	</div>
+</div>
